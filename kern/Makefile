@@ -7,9 +7,7 @@ install: ../os.img kernel.bin
 
 kernel.bin: reloc.asm vm.asm main.o
 	nasm -f bin -o vm.bin vm.asm
-	nasm -f bin -o reloc.bin reloc.asm
-
-	cat reloc.bin vm.bin main.o > $@
+	nasm -f bin -o $@ reloc.asm
 
 %.o: %.asm
 	$(ASM) $< $@
