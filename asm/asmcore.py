@@ -2,7 +2,7 @@ import sys, math, os
 import utils
 
 OPCODES = {
-    "brk": 0b00000,
+    "nop": 0b00000,
     "drop": 0b00011,
     "dup": 0b00100,
     "swap": 0b00101,
@@ -29,8 +29,8 @@ OPCODES = {
     "ldw": 0b11010,
     "stb": 0b11011,
     "stw": 0b11100,
-    "dei": 0b11101,
-    "deo": 0b11110,
+    "srel": 0b11101,
+    "sbp": 0b11110,
     "native": 0b11111
 }
 
@@ -276,8 +276,18 @@ def process(text):
         if isinstance(opcode, OpCode):
             if len(opcode.args) == 0:
                 try:
-                    num = utils.req_int_const(opcode.opcode, [], [], bytes(), ws)
-                    binary += bytearray([0x01, *utils.pack_num(num, ws)])
+                    if opcode.opcode.startswith("#"):
+                        num = opcode.opcode[1:]
+                        is_rel = True
+                    else:
+                        num = opcode.opcode
+                        is_rel = False
+
+                    val = utils.req_int_const(num, [], [], bytes(), ws)
+                    if is_rel:
+                        binary += bytearray([0x01, *utils.pack_num(val, ws), OPCODES["srel"]])
+                    else:
+                        binary += bytearray([0x01, *utils.pack_num(val, ws)])
                     continue
                 except ValueError:
                     pass
