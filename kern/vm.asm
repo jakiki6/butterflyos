@@ -103,7 +103,7 @@ vm:	; registers:
 
 	lodsb
 	test al, 0b10000000
-	jne .chk_fetch
+	jne .execute
 	mov byte [.flag_rs], 1
 	xchg ebp, edi
 
@@ -125,6 +125,30 @@ vm:	; registers:
 .flag_rs:
 	db 0
 
+
+eqtoeax:
+	; convert equal flag to eax
+	jne .no
+	mov eax, 1
+	ret
+.no:	xor eax, eax
+	ret
+
+belowtoeax:  
+        ; convert below flag to eax
+        jnb .no   
+        mov eax, 1
+        ret
+.no:    xor eax, eax
+        ret
+
+abovetoeax:  
+        ; convert above flag to eax
+        jna .no   
+        mov eax, 1
+        ret
+.no:    xor eax, eax
+        ret
 
 error:	lidt [.fake_idt]
 	int 0x69
@@ -181,7 +205,10 @@ func_lit:
 
 func_sstack:
 	lodsd
+	push ebp
 	mov ebp, eax
+	pop eax
+	push_ps eax
 	ret
 
 func_drop:
@@ -207,4 +234,210 @@ func_over:
 	push_ps eax
 	push_ps ebx
 	push_ps eax
+	ret
+
+func_rot:
+	pop_ps ecx
+	pop_ps ebx
+	pop_ps eax
+	push_ps ebx
+	push_ps ecx
+	push_ps eax
+	ret
+
+func_eq:
+	pop_ps ebx
+	pop_ps eax
+	cmp eax, ebx
+	call eqtoeax
+	push_ps eax
+	ret
+
+func_not:
+	pop_ps eax
+	xor eax, 1
+	push_ps eax
+	ret
+
+func_gth:
+	pop_ps ebx
+        pop_ps eax
+        cmp eax, ebx
+        call abovetoeax
+        push_ps eax
+        ret
+
+func_lth:
+        pop_ps ebx
+        pop_ps eax
+        cmp eax, ebx
+        call belowtoeax
+        push_ps eax
+        ret
+
+func_jmp:
+	pop_ps esi
+	ret
+
+func_jmpc:
+	pop_ps eax
+	pop_ps ebx
+
+	cmp eax, 0
+	je .ret
+
+	mov esi, ebx
+
+.ret:	ret
+
+func_call:
+	push_rs esi
+	pop_ps esi
+	ret
+
+func_stash:
+	pop_ps eax
+	push_rs eax
+	ret
+
+func_add:
+	pop_ps ebx
+	pop_ps eax
+	add eax, ebx
+	push_ps eax
+	ret
+
+func_sub:
+        pop_ps ebx
+        pop_ps eax
+        sub eax, ebx
+        push_ps eax
+        ret
+
+func_mul:
+	; protect edx
+	mov ecx, edx
+	xor edx, edx
+
+	pop_ps ebx
+	pop_ps eax
+
+	mul ebx
+
+	push_ps eax
+
+	; unprotect edx
+	mov edx, ecx
+	ret
+
+func_div:  
+        ; protect edx
+        mov ecx, edx
+        xor edx, edx
+
+        pop_ps ebx
+        pop_ps eax
+
+        div ebx
+
+        push_ps eax
+
+        ; unprotect edx
+        mov edx, ecx
+        ret
+
+func_mod:  
+        ; protect edx
+        mov ecx, edx
+        xor edx, edx
+
+        pop_ps ebx
+        pop_ps eax
+
+        div ebx
+
+        push_ps edx
+
+        ; unprotect edx
+        mov edx, ecx
+        ret
+
+func_and:
+	pop_ps ebx
+	pop_ps eax
+	and eax, ebx
+	push_ps eax
+	ret
+
+func_or:
+        pop_ps ebx
+        pop_ps eax
+        or eax, ebx
+        push_ps eax
+        ret
+
+func_xor:
+        pop_ps ebx
+        pop_ps eax
+        xor eax, ebx
+        push_ps eax
+        ret
+
+func_shift:
+	pop_ps ebx
+	pop_ps eax
+
+	mov ecx, ebx
+	and ecx, 0x7fffffff
+
+	test ebx, 0x80000000
+	je .shr
+
+	shl eax, cl
+	jmp .ret
+.shr:	shr eax, cl
+
+.ret:	push_ps eax
+	ret
+
+func_ldb:
+	xor eax, eax
+	pop_ps ebx
+	mov al, byte [ebx]
+	push_ps eax
+	ret
+
+func_ldw:
+	pop_ps ebx
+	mov eax, dword [ebx]
+	push_ps eax
+	ret
+
+func_stb:
+	pop_ps ebx
+	pop_ps eax
+
+	mov byte [ebx], al
+	ret
+
+func_stw:
+	pop_ps ebx
+	pop_ps eax
+
+	mov dword [ebx], eax
+	ret
+
+func_srel:
+	pop_ps eax
+	add eax, edx
+	push_ps eax
+	ret
+
+func_sbp:
+	pop_ps edx
+	ret
+
+func_native:
+	pop_ps eax
+	call eax
 	ret
