@@ -1,4 +1,5 @@
 *.bin
 *.o
 *.img
+*.lst
 log.txt
