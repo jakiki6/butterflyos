@@ -36,13 +36,14 @@ OPCODES = {
 
 CONSUMES = {
     "db": -1,
+    "dw": -1,
     "org": 1,
     "%include": -1,
     "%incbin": -1,
     "times": -1,
     "bits": 1,
-    "setps": 1,
-    "setrs": 1,
+    "sps": 1,
+    "srs": 1,
     "lit": 1,
     "jmp": 1,
     "jmpc": 1,
@@ -250,6 +251,7 @@ def process(text):
     origin = 0
     ws = 4
     defined_origin = False
+    root_label = ""
 
     binary = bytearray()
 
@@ -283,7 +285,7 @@ def process(text):
                         num = opcode.opcode
                         is_rel = False
 
-                    val = utils.req_int_const(num, [], [], bytes(), ws)
+                    val = utils.req_int_const(num, [], [], bytes(), ws, root_label)
                     if is_rel:
                         binary += bytearray([0x01, *utils.pack_num(val, ws), OPCODES["srel"]])
                     else:
@@ -294,9 +296,14 @@ def process(text):
 
             if opcode.opcode == "db":
                 for arg in opcode.args:
-                    num = utils.req_int_big(arg, [len(binary)], tosplice, binary, ws)
+                    num = utils.req_int_big(arg, [len(binary)], tosplice, binary, ws, root_label)
 
                     binary += bytearray(pack_num(num))
+            elif opcode.opcode == "dw":
+                for arg in opcode.args:
+                    num = utils.req_int_big(arg, [len(binary)], tosplice, binary, ws, root_label)
+
+                    binary += bytearray(utils.pack_num(num, ws))
             elif opcode.opcode == "org":
                 if not defined_origin:
                     defined_origin = True
@@ -309,7 +316,7 @@ def process(text):
                     print("org: wrong number of arguments")
                     exit(0)
 
-                num = utils.req_int_const(opcode.args[0], [], tosplice, binary, ws)
+                num = utils.req_int_const(opcode.args[0], [], tosplice, binary, ws, root_label)
 
                 origin = num % (256 ** ws)
             elif opcode.opcode == "bits":
@@ -357,29 +364,29 @@ def process(text):
                 else:
                     flags = 0b00000000
 
-                if opcode.opcode == "setps":
-                    num = utils.req_int(opcode.args[0], [len(binary) + 1], tosplice, binary, ws)
+                if opcode.opcode == "sps":
+                    num = utils.req_int(opcode.args[0], [len(binary) + 1], tosplice, binary, ws, root_label)
 
                     binary += bytearray([0x02, *utils.pack_num(num, ws)])
-                elif opcode.opcode == "setrs":
-                    num = utils.req_int(opcode.args[0], [len(binary) + 1], tosplice, binary, ws)
+                elif opcode.opcode == "srs":
+                    num = utils.req_int(opcode.args[0], [len(binary) + 1], tosplice, binary, ws, root_label)
 
                     binary += bytearray([0x82, *utils.pack_num(num, ws)])
                 elif opcode.opcode == "lit":
                     for arg in opcode.args:
-                        num = utils.req_int(arg, [len(binary) + 1], tosplice, binary, ws)
+                        num = utils.req_int(arg, [len(binary) + 1], tosplice, binary, ws, root_label)
 
                         binary += bytearray([0x01 | flags, *utils.pack_num(num, ws)])
                 elif opcode.opcode == "jmp":
-                    num = utils.req_int(opcode.args[0], [len(binary) + 1], tosplice, binary, ws) + origin
+                    num = utils.req_int(opcode.args[0], [len(binary) + 1], tosplice, binary, ws, root_label) + origin
                     binary += bytearray([0x01 | flags, *utils.pack_num(num, ws)])
                     binary += bytearray([OPCODES["sjmp"] | flags])
                 elif opcode.opcode == "jmpc":
-                    num = utils.req_int(opcode.args[0], [len(binary) + 1], tosplice, binary, ws) + origin
+                    num = utils.req_int(opcode.args[0], [len(binary) + 1], tosplice, binary, ws, root_label) + origin
                     binary += bytearray([0x01 | flags, *utils.pack_num(num, ws)])
                     binary += bytearray([OPCODES["sjmpc"] | flags])
                 elif opcode.opcode == "call":
-                    num = utils.req_int(opcode.args[0], [len(binary) + 1], tosplice, binary, ws) + origin
+                    num = utils.req_int(opcode.args[0], [len(binary) + 1], tosplice, binary, ws, root_label) + origin
                     binary += bytearray([0x01 | flags, *utils.pack_num(num, ws)])
                     binary += bytearray([OPCODES["scall"] | flags])
                 elif opcode.opcode in OPCODES.keys():
@@ -387,6 +394,12 @@ def process(text):
                 else:
                     if flags & 0b10000000:
                         opcode.opcode += "r"
+
+                    if opcode.opcode.startswith("."):
+                        opcode.opcode = root_label + opcode.opcode
+                    else:
+                        root_label = opcode.opcode
+
                     tosplice.append({
                         "label": opcode.opcode,
                         "at": len(binary) + 1,

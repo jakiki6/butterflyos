@@ -31,11 +31,9 @@ start:	mov esp, 0x1f0000
 	lodsd
 	mov dword [entry], eax
 
-	; number of sections
+	; skip over number of sections
 	lodsd
-	push eax
 
-.section:
 	; origin
 	lodsd
 	mov edi, eax
@@ -46,41 +44,6 @@ start:	mov esp, 0x1f0000
 
 	; move
 	rep movsb
-
-	; skip over relocations since they're not relevant for out kernel
-	lodsd
-	shl eax, 2
-	add esi, eax
-
-	; read symbols and panic if we encounter a 0x00 type
-	lodsd
-	push eax
-
-.syms:	; read type
-	lodsb
-
-	; check type
-	cmp al, 0x00
-	je error
-
-	; skip over address
-	lodsd
-
-	; skip over name
-.sn:	lodsb
-	cmp al, 0x00
-	jne .sn
-
-	; loop
-	pop eax
-	push eax
-
-	dec eax
-	cmp eax, 0
-	jne .syms
-
-	; drop value on the stack
-	pop eax
 
 vm:	; registers:
 	; esi=pc ebp=ps edi=rs edx=bp
@@ -429,6 +392,7 @@ func_srel:
 
 func_sbp:
 	pop_ps edx
+	add edx, ebp
 	ret
 
 func_native:

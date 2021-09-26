@@ -16,13 +16,13 @@ def shift_line(data, num):
         data.args.pop(0)
     return data
 
-def req_int(string, splices, tosplice, binary, ws):
-    return req_int_big(string, splices, tosplice, binary, ws) % (256 ** ws)
+def req_int(string, splices, tosplice, binary, ws, root):
+    return req_int_big(string, splices, tosplice, binary, ws, root) % (256 ** ws)
 
-def req_int_const(string, splices, tosplice, binary, ws):
-    return req_int_big(string, splices, tosplice, binary, ws, True) % (256 ** ws)
+def req_int_const(string, splices, tosplice, binary, ws, root):
+    return req_int_big(string, splices, tosplice, binary, ws, root, True) % (256 ** ws)
 
-def req_int_big(string, splices, tosplice, binary, ws, const=False):
+def req_int_big(string, splices, tosplice, binary, ws, root, const=False):
     try:
         res = int(string)       # number
         return res
@@ -63,6 +63,9 @@ def req_int_big(string, splices, tosplice, binary, ws, const=False):
 
     if string == "$":
         return len(binary)
+
+    if string.startswith("."):
+        string = root + string
 
     if not const:
         for splice in splices:
