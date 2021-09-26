@@ -2,6 +2,8 @@ all: run
 
 run: os.img
 	qemu-system-i386 -hda $< -D log.txt -d int -machine smm=off -no-reboot -monitor stdio
+rundb: os.img
+	qemu-system-i386 -hda $< -no-reboot -gdb tcp::1337 -S
 
 os.img:
 	make -C loader all
@@ -12,4 +14,4 @@ clean:
 	make -C loader clean
 	make -C kern clean
 
-.PHONY: all run clean
+.PHONY: all run clean rundb

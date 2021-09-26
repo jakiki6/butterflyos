@@ -53,7 +53,7 @@ CONSUMES = {
 }
 
 origin = 0
-ws = 0
+ws = 4
 
 class OpCode(object):
     def __init__(self, opcode, args):
@@ -371,15 +371,15 @@ def process(text):
 
                         binary += bytearray([0x01 | flags, *utils.pack_num(num, ws)])
                 elif opcode.opcode == "jmp":
-                    num = utils.req_int(opcode.args[0], [len(binary) + 1], tosplice, binary, ws)
+                    num = utils.req_int(opcode.args[0], [len(binary) + 1], tosplice, binary, ws) + origin
                     binary += bytearray([0x01 | flags, *utils.pack_num(num, ws)])
                     binary += bytearray([OPCODES["sjmp"] | flags])
                 elif opcode.opcode == "jmpc":
-                    num = utils.req_int(opcode.args[0], [len(binary) + 1], tosplice, binary, ws)
+                    num = utils.req_int(opcode.args[0], [len(binary) + 1], tosplice, binary, ws) + origin
                     binary += bytearray([0x01 | flags, *utils.pack_num(num, ws)])
                     binary += bytearray([OPCODES["sjmpc"] | flags])
                 elif opcode.opcode == "call":
-                    num = utils.req_int(opcode.args[0], [len(binary) + 1], tosplice, binary, ws)
+                    num = utils.req_int(opcode.args[0], [len(binary) + 1], tosplice, binary, ws) + origin
                     binary += bytearray([0x01 | flags, *utils.pack_num(num, ws)])
                     binary += bytearray([OPCODES["scall"] | flags])
                 elif opcode.opcode in OPCODES.keys():
@@ -435,6 +435,7 @@ def process(text):
 
     obj = bytes()
     obj += b"bbjo"
+    obj += origin.to_bytes(4, byteorder="little")
     obj += (1).to_bytes(4, byteorder="little")
 
     obj += origin.to_bytes(4, byteorder="little")

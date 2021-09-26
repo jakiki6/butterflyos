@@ -27,6 +27,10 @@ start:	mov esp, 0x1f0000
 	cmp eax, 0x6f6a6262
 	jne error
 
+	; entry
+	lodsd
+	mov dword [entry], eax
+
 	; number of sections
 	lodsd
 	push eax
@@ -35,12 +39,6 @@ start:	mov esp, 0x1f0000
 	; origin
 	lodsd
 	mov edi, eax
-
-	; set entry point
-	cmp dword [entry], 0
-	jne .entryalreadyset
-	mov dword [entry], eax
-.entryalreadyset:
 
 	; length of binary
 	lodsd
@@ -90,9 +88,6 @@ vm:	; registers:
 	; setup registers
 	mov esi, dword [entry]
 
-	; no swap
-	push 0
-
 .main:	; clean up
 	cmp byte [.flag_rs], 1
 	jne .flags
@@ -116,15 +111,15 @@ vm:	; registers:
 	mov bl, al
 	shl ebx, 2
 	add ebx, func_table
+	mov ebx, dword [ebx]
 
 	; call it
-	call [ebx]
-	jmp .main
-	
+	push .main
+	push ebx
+	ret
 
 .flag_rs:
 	db 0
-
 
 eqtoeax:
 	; convert equal flag to eax
@@ -205,10 +200,9 @@ func_lit:
 
 func_sstack:
 	lodsd
-	push ebp
+	mov ebx, ebp
 	mov ebp, eax
-	pop eax
-	push_ps eax
+	push_ps ebx
 	ret
 
 func_drop:

@@ -1,4 +1,5 @@
 	org 0x210000
+
 	setps 0x400000
 	setrs 0x3f0000
 ; memory layout:
