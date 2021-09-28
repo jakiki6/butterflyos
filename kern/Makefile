@@ -5,9 +5,9 @@ all: install
 install: ../os.img kernel.bin
 	echfs-utils ../os.img import kernel.bin kernel.bin
 
-kernel.bin: reloc.asm vm.asm main.o
-	nasm -f bin -l vm.lst -o vm.bin vm.asm
-	nasm -f bin -o $@ reloc.asm
+kernel.bin: main.o
+	nasm -f bin -l vm/vm.lst -o vm.bin vm/vm.asm
+	nasm -f bin -o $@ vm/reloc.asm
 
 %.o: %.asm
 	$(ASM) $< $@

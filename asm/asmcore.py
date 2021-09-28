@@ -229,10 +229,7 @@ def preprocess(data):
         if not isinstance(line, OpCode):
             continue
         if line.opcode == "times":
-            num, s = utils.req_int_big(line.args[0], 64)
-            if not s:
-                print(line.args[0], "is not a valid number")
-                exit(0)
+            num, _ = utils.req_int_const(line.args[0], [], [], b"", 4, "")
             nline = utils.shift_line(line, 2)
             for i in range(0, num):
                 data.insert(index, nline)
@@ -324,7 +321,7 @@ def process(text):
                     print("bits: wrong number of arguments")
                     exit(0)
 
-                num = utils.req_int_big(opcode.args[0], [], tosplice, binary, 64, True)
+                num = utils.req_int_big(opcode.args[0], [], tosplice, binary, 64, True, root_label)
 
                 if num % 8:
                     print(f"bits: {num} is unaligned")
@@ -378,15 +375,18 @@ def process(text):
 
                         binary += bytearray([0x01 | flags, *utils.pack_num(num, ws)])
                 elif opcode.opcode == "jmp":
-                    num = utils.req_int(opcode.args[0], [len(binary) + 1], tosplice, binary, ws, root_label) + origin
+                    num = utils.req_int(opcode.args[0], [len(binary) + 1], tosplice, binary, ws, root_label)
+                    num += origin
                     binary += bytearray([0x01 | flags, *utils.pack_num(num, ws)])
                     binary += bytearray([OPCODES["sjmp"] | flags])
                 elif opcode.opcode == "jmpc":
-                    num = utils.req_int(opcode.args[0], [len(binary) + 1], tosplice, binary, ws, root_label) + origin
+                    num = utils.req_int(opcode.args[0], [len(binary) + 1], tosplice, binary, ws, root_label)
+                    num += origin
                     binary += bytearray([0x01 | flags, *utils.pack_num(num, ws)])
                     binary += bytearray([OPCODES["sjmpc"] | flags])
                 elif opcode.opcode == "call":
-                    num = utils.req_int(opcode.args[0], [len(binary) + 1], tosplice, binary, ws, root_label) + origin
+                    num = utils.req_int(opcode.args[0], [len(binary) + 1], tosplice, binary, ws, root_label)
+                    num += origin
                     binary += bytearray([0x01 | flags, *utils.pack_num(num, ws)])
                     binary += bytearray([OPCODES["scall"] | flags])
                 elif opcode.opcode in OPCODES.keys():
@@ -407,6 +407,11 @@ def process(text):
                     })
                     binary += bytearray([0x01, *utils.pack_num(0, ws)])
         else:
+            if opcode.name.startswith("."):
+                opcode.name = root_label + opcode.name
+            else:
+                root_label = opcode.name
+
             labels[opcode.name] = len(binary) + origin
 
     symbols, relocs = [], []

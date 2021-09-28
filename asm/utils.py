@@ -17,10 +17,12 @@ def shift_line(data, num):
     return data
 
 def req_int(string, splices, tosplice, binary, ws, root):
-    return req_int_big(string, splices, tosplice, binary, ws, root) % (256 ** ws)
+    val =  req_int_big(string, splices, tosplice, binary, ws, root)
+    return val % (256 ** ws)
 
 def req_int_const(string, splices, tosplice, binary, ws, root):
-    return req_int_big(string, splices, tosplice, binary, ws, root, True) % (256 ** ws)
+    val =  req_int_big(string, splices, tosplice, binary, ws, root, True)
+    return val % (256 ** ws)
 
 def req_int_big(string, splices, tosplice, binary, ws, root, const=False):
     try:
@@ -66,6 +68,8 @@ def req_int_big(string, splices, tosplice, binary, ws, root, const=False):
 
     if string.startswith("."):
         string = root + string
+    else:
+        root = string
 
     if not const:
         for splice in splices:
@@ -74,7 +78,7 @@ def req_int_big(string, splices, tosplice, binary, ws, root, const=False):
                 "at": splice,
                 "size": ws
             })
-        return 0xffff
+        return 0
 
     raise ValueError(f"{string} isn't a valid number!")
 
