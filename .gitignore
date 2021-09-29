@@ -2,4 +2,5 @@
 *.o
 *.img
 *.lst
+*.log
 log.txt

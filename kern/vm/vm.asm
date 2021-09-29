@@ -190,8 +190,6 @@ write_hex:
 
 	mov al, 0x0a
 	call write_serial
-	mov al, 0x0d
-	call write_serial
 
 	popad
 	ret
