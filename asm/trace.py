@@ -70,7 +70,9 @@ with open(sys.argv[1], "rb") as binary:
 
         prefix = "| " * olevel
 
-        if opcode == "sjmpr":
+        if opcode == "scall":
+            prefix = prefix[:-2] + ") "
+        elif opcode == "sjmpr":
             prefix = prefix[:-2] + "\\ "
 
         print("0x" + hex(pc)[2:].zfill(8) + ": " + prefix + opcode + (" 0x" + hex(val)[2:].zfill(8) if val != None else ""))
