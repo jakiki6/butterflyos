@@ -1,6 +1,9 @@
 	bits 32
 	org 0x200000
 
+SERIAL_PORT: \
+	equ 0x03f8
+
 %macro push_ps 1
 	sub ebp, 4
 	mov dword [ebp], %1
@@ -18,7 +21,19 @@
         mov %1, dword [edi]
 %endmacro
 
+%macro outb 2
+	mov dx, %1
+	mov al, %2
+	out dx, al
+%endmacro
+%macro inb 1
+	mov dx, %1
+	in al, dx
+%endmacro
+
 start:	mov esp, 0x1f0000
+
+	call init_serial
 
 	mov esi, kernel_file
 
@@ -51,7 +66,11 @@ vm:	; registers:
 	; setup registers
 	mov esi, dword [entry]
 
-.main:	; clean up
+.main:	xchg eax, esi
+	call write_hex
+	xchg eax, esi
+
+	; clean up
 	cmp byte [.flag_rs], 1
 	jne .flags
 	xchg ebp, edi
@@ -113,6 +132,91 @@ error:	lidt [.fake_idt]
 .fake_idt:
 	dw 0
 	dd 0
+
+init_serial:
+	outb SERIAL_PORT + 1, 0x00
+	outb SERIAL_PORT + 3, 0x80
+        outb SERIAL_PORT + 0, 0x03
+        outb SERIAL_PORT + 1, 0x00
+        outb SERIAL_PORT + 3, 0x03
+        outb SERIAL_PORT + 2, 0xc7
+        outb SERIAL_PORT + 4, 0x0b
+        outb SERIAL_PORT + 4, 0x1e
+        outb SERIAL_PORT + 0, 0xae
+
+	inb SERIAL_PORT + 0
+	cmp al, 0xae
+	jne error
+
+	outb SERIAL_PORT + 4, 0x0f
+	ret
+
+write_serial:
+	push edx
+
+	push eax
+.cw:	inb SERIAL_PORT + 5
+	and al, 0x20
+	jz .cw
+	pop eax
+
+	outb SERIAL_PORT + 0, al
+
+	pop edx
+	ret
+
+read_serial:
+	push edx
+
+.cr:	inb SERIAL_PORT + 5
+	and al, 0x01
+	jz .cr
+
+	out SERIAL_PORT + 0, al
+
+	pop edx
+	ret
+
+write_hex:
+	pushad
+	xchg eax, ebx
+
+	mov ecx, 4
+.loop:	mov eax, ebx
+	shr eax, 24
+	call write_hex_byte
+	shl ebx, 8
+	loop .loop
+
+	mov al, 0x0a
+	call write_serial
+	mov al, 0x0d
+	call write_serial
+
+	popad
+	ret
+
+write_hex_byte:
+	pushad
+	xchg edx, eax
+
+	xor ebx, ebx
+	mov bl, dl
+	shr bl, 4
+	add ebx, .table
+	mov al, byte [ebx]
+	call write_serial
+
+	xor ebx, ebx
+	mov bl, dl
+	and bl, 0x0f
+	add ebx, .table
+	mov al, byte [ebx]
+        call write_serial
+
+	popad
+	ret
+.table:	db "0123456789abcdef"
 
 kernel_file:
 	incbin "main.o"
@@ -396,6 +500,7 @@ func_sbp:
 	ret
 
 func_native:
+	ret
 	pop_ps eax
 	call eax
 	ret

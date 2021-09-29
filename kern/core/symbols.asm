@@ -16,3 +16,4 @@ _EmptyEntry:
 .next:	dw 0	; no next
 .name:	db 0	; empty name
 .addr:	dw 0	; why would you even read this
+		; subscribe to technoblade and dwaddy dweam uwu
