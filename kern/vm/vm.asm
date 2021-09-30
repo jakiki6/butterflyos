@@ -13,12 +13,12 @@ SERIAL_PORT: \
 	add ebp, 4
 %endmacro
 %macro push_rs 1
-        mov dword [edi], %1
-        add edi, 4
+        sub edi, 4
+	mov dword [edi], %1
 %endmacro
 %macro pop_rs 1
-        sub edi, 4
         mov %1, dword [edi]
+        add edi, 4
 %endmacro
 
 %macro outb 2

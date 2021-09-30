@@ -15,6 +15,6 @@ KernelEntry:
 	0 sbp
 
 	call SymSetup
-;	call SerialSetup
+	call SerialSetup
 
 	jmp $
