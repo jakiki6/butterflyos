@@ -1,7 +1,19 @@
 global FramebufferInit
 FramebufferInit:
-	0xa0000
-.wipe:	dup call RngOne swap stb
+	0x202004 ldw FramebufferCfg.width stw
+	0x202008 ldw FramebufferCfg.height stw
+	0x20200c ldw FramebufferCfg.buf stw
+	0x202010 ldw FramebufferCfg.bpl stw
+
+	FramebufferCfg.buf ldw
+.loop:	dup 0xff swap stb
 	1 add
-	dup 0xc0000 neq jmpc .wipe
-	drop jmp FramebufferInit
+	jmp .loop
+
+global FramebufferCfg
+FramebufferCfg:
+.width:	dw 0
+.height:
+	dw 0
+.buf:	dw 0
+.bpl:	dw 0

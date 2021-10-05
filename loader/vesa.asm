@@ -121,18 +121,6 @@ vbe_set_mode:
 .offset				dw 0
 .mode				dw 0
 
-vbe_screen:
-.width:		dw 0
-.height:	dw 0
-.x_cur_max:	dw 0
-.y_cur_max:	dw 0
-.bpp:		db 0
-.bytes_per_pixel:
-		db 0
-.bytes_per_line:
-		dw 0
-.physical_buffer:
-		dd 0
 
 
 vbe_info_block:
@@ -189,3 +177,16 @@ mode_info_block:
 .off_screen_mem_size:
 		dw 0
 .reserved1:	times 206 db 0
+
+vbe_screen:
+.width:		resw 0
+.height:	resw 0
+.x_cur_max:	resw 0
+.y_cur_max:	resw 0
+.bpp:		resb 0
+.bytes_per_pixel:
+		resb 0
+.bytes_per_line:
+		resw 0
+.physical_buffer:
+		resd 0
