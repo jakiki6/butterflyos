@@ -23,6 +23,10 @@ stage1:
 	pop ds
 	push cs
 	pop es
+	push cs
+	pop gs
+	push cs
+	pop fs
 
 	sti
 

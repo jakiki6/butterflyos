@@ -2,8 +2,12 @@ org 0xa000
 
 %define PAGING_BUFFER 0x4000
 
-stage2:	mov ax, 0x0012
-	int 0x10
+stage2:	mov ax, 640
+	mov bx, 480
+	mov cl, 8
+	call vbe_set_mode
+	mov bp, errors.vesa
+	jc error
 
 	mov eax, dword [0x7c00 + 12]	; total blocks
 	shl eax, 3			; times sizeof(uint64_t)
@@ -241,6 +245,10 @@ errors:
 	db "Error while reading a chain entry", 0x0a, 0x0d, 0
 .found_reserved_block:
 	db "Found reserved block while reading chain", 0x0a, 0x0d, 0
+.vesa:
+	db "Your system doesn't seem to support VESA", 0x0a, 0x0d, 0
 
 idt:	dw 0
 	dd 0
+
+%include "vesa.asm"

@@ -266,6 +266,7 @@ func_nop:
 	jne .hlt
 	ret
 .hlt:	cli
+	pause
 	hlt
 	jmp .hlt
 
@@ -504,8 +505,10 @@ func_srel:
 	ret
 
 func_sbp:
+	mov eax, edx
 	pop_ps edx
 	add edx, ebp
+	push_ps eax
 	ret
 
 func_native:

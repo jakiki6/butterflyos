@@ -12,7 +12,7 @@ KernelEntry:
 	srs 0x3f0000
 
 	; set bp to be equal to the stack
-	0 sbp
+	0 sbp drop
 
 	call SymSetup
 	call SerialSetup
