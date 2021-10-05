@@ -2,12 +2,14 @@ org 0xa000
 
 %define PAGING_BUFFER 0x4000
 
-stage2:	mov ax, 640
+stage2:	pusha
+	mov ax, 640
 	mov bx, 480
 	mov cl, 8
 	call vbe_set_mode
 	mov bp, errors.vesa
 	jc error
+	popa
 
 	mov eax, dword [0x7c00 + 12]	; total blocks
 	shl eax, 3			; times sizeof(uint64_t)

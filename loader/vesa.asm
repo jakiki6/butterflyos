@@ -39,7 +39,7 @@ vbe_set_mode:
 	mov ax, 0
 	mov fs, ax
  
-	cmp [.mode], 0xFFFF			; end of list?
+	cmp word [.mode], 0xFFFF		; end of list?
 	je .error
  
 	push es
@@ -120,6 +120,20 @@ vbe_set_mode:
 .segment			dw 0
 .offset				dw 0
 .mode				dw 0
+
+vbe_screen:
+.width:		dw 0
+.height:	dw 0
+.x_cur_max:	dw 0
+.y_cur_max:	dw 0
+.bpp:		db 0
+.bytes_per_pixel:
+		db 0
+.bytes_per_line:
+		dw 0
+.physical_buffer:
+		dd 0
+
 
 vbe_info_block:
 .signature:	db "VBE2"
