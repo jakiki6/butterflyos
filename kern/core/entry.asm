@@ -16,5 +16,6 @@ KernelEntry:
 
 	call SymSetup
 	call SerialSetup
+	call FramebufferInit
 
-	jmp $
+.hlt:	hlt

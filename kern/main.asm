@@ -2,3 +2,5 @@
 %include "core/symbols.asm"
 %include "core/arch.asm"
 %include "core/serial.asm"
+%include "core/framebuffer.asm"
+%include "core/rng.asm"

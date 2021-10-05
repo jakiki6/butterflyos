@@ -3,6 +3,8 @@
 
 SERIAL_PORT: \
 	equ 0x03f8
+DISABLE_TRACE: \
+	equ 0x202000
 
 %macro push_ps 1
 	sub ebp, 4
@@ -39,7 +41,7 @@ start:	mov esp, 0x1f0000
 
 	; check magic
 	lodsd
-	cmp eax, 0x6f6a6262
+	cmp eax, 0x6f626d65
 	jne error
 
 	; entry
@@ -66,9 +68,13 @@ vm:	; registers:
 	; setup registers
 	mov esi, dword [entry]
 
-.main:	xchg eax, esi
+.main:	cmp byte [DISABLE_TRACE], 1
+	je .notrace
+
+	xchg eax, esi
 	call write_hex
 	xchg eax, esi
+.notrace:
 
 	; clean up
 	cmp byte [.flag_rs], 1
@@ -172,7 +178,7 @@ read_serial:
 	and al, 0x01
 	jz .cr
 
-	out SERIAL_PORT + 0, al
+	inb SERIAL_PORT + 0
 
 	pop edx
 	ret
@@ -256,7 +262,12 @@ func_table:
         dd func_native  ; 0b11111
 
 func_nop:
+	cmp byte [vm.flag_rs], 1
+	jne .hlt
 	ret
+.hlt:	cli
+	hlt
+	jmp .hlt
 
 func_lit:
 	lodsd
@@ -339,8 +350,8 @@ func_jmp:
 	ret
 
 func_jmpc:
-	pop_ps eax
 	pop_ps ebx
+	pop_ps eax
 
 	cmp eax, 0
 	je .ret

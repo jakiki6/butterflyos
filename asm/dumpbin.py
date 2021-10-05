@@ -7,7 +7,7 @@ if len(sys.argv) < 3:
 
 with open(sys.argv[1], "rb") as infile:
     with open(sys.argv[2], "wb") as outfile:
-        assert infile.read(4) == b"bbjo", "Not an object file"
+        assert infile.read(4) == b"embo", "Not an object file"
 
         infile.read(12) # skip over boring stuff
 

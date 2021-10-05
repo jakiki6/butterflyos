@@ -37,3 +37,10 @@ arch_inb:
 	push_ps eax
 	pop edx
 	ret
+
+rng_one:
+	push edx
+	rdtsc
+	pop edx
+	push_ps eax
+	ret

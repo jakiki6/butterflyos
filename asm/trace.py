@@ -71,7 +71,7 @@ with open(sys.argv[1], "rb") as binary:
         prefix = "| " * olevel
 
         if opcode == "scall":
-            prefix = prefix[:-2] + ") "
+            prefix += ") "
         elif opcode == "sjmpr":
             prefix = prefix[:-2] + "\\ "
 

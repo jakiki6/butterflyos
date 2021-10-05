@@ -49,6 +49,7 @@ CONSUMES = {
     "jmpc": 1,
     "call": 1,
     "ret": 0,
+    "hlt": 0,
     "global": 1,
     "extern": 1
 }
@@ -350,6 +351,8 @@ def process(text):
                 externals.append(opcode.args[0])
             elif opcode.opcode == "ret":
                 binary += bytearray([OPCODES["sjmp"] | 0x80])
+            elif opcode.opcode == "hlt":
+                binary += bytearray([OPCODES["nop"] | 0x80])
             elif opcode.opcode == "neq":    
                 binary += bytearray([OPCODES["eq"], OPCODES["not"]])
             elif opcode.opcode == "word":
@@ -452,7 +455,7 @@ def process(text):
         symbols.append([0x01, labels[glob], glob])
 
     obj = bytes()
-    obj += b"bbjo"
+    obj += b"embo"
     obj += origin.to_bytes(4, byteorder="little")
     obj += (1).to_bytes(4, byteorder="little")
 

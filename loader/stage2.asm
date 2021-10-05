@@ -2,7 +2,10 @@ org 0xa000
 
 %define PAGING_BUFFER 0x4000
 
-stage2:	mov eax, dword [0x7c00 + 12]	; total blocks
+stage2:	mov ax, 0x0012
+	int 0x10
+
+	mov eax, dword [0x7c00 + 12]	; total blocks
 	shl eax, 3			; times sizeof(uint64_t)
 	add eax, dword [0x7c00 + 28]	; plus block size
 	sub eax, 1			; minus 1
