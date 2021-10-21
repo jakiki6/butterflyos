@@ -75,9 +75,10 @@ vbe_set_mode:
 	mov word [vbe_screen.bytes_per_line], ax
 	mov eax, 0
 	mov al, [.bpp]
-	mov byte [vbe_screen.bpp], al
+	mov byte [vbe_screen.bits_per_pixel], al
 	shr eax, 3
 	mov dword [vbe_screen.bytes_per_pixel], eax
+
  
 	mov ax, [.width]
 	shr ax, 3
@@ -179,14 +180,15 @@ mode_info_block:
 .reserved1:	times 206 db 0
 
 vbe_screen:
-.width:		resw 0
-.height:	resw 0
-.x_cur_max:	resw 0
-.y_cur_max:	resw 0
-.bpp:		resb 0
+.width:		dw 0
+.height:	dw 0
+.x_cur_max:	dw 0
+.y_cur_max:	dw 0
+.bits_per_pixel:
+		db 0
 .bytes_per_pixel:
-		resb 0
+		db 0
 .bytes_per_line:
-		resw 0
+		dw 0
 .physical_buffer:
-		resd 0
+		dd 0
