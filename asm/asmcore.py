@@ -54,8 +54,14 @@ CONSUMES = {
     "extern": 1
 }
 
+FLAGS = {
+    "r": 0x80,
+    "a": 0x40,
+    "f": 0x20
+}
+
 origin = 0
-ws = 4
+ws = 8
 
 class OpCode(object):
     def __init__(self, opcode, args):
@@ -230,7 +236,7 @@ def preprocess(data):
         if not isinstance(line, OpCode):
             continue
         if line.opcode == "times":
-            num, _ = utils.req_int_const(line.args[0], [], [], b"", 4, "")
+            num, _ = utils.req_int_const(line.args[0], [], [], b"", 8, "")
             nline = utils.shift_line(line, 2)
             for i in range(0, num):
                 data.insert(index, nline)
@@ -247,7 +253,7 @@ def clean(data):
 def process(text):
     global origin, ws
     origin = 0
-    ws = 4
+    ws = 8
     defined_origin = False
     root_label = ""
 
@@ -358,11 +364,15 @@ def process(text):
             elif opcode.opcode == "word":
                 binary += bytearray(ws)
             else:
-                if opcode.opcode.endswith("r"):
-                    opcode.opcode = opcode.opcode[:-1]
-                    flags = 0b10000000
-                else:
-                    flags = 0b00000000
+                sopcode = opcode.opcode
+
+                flags = 0
+                if "." in opcode.opcode:
+                    if opcode.opcode.split(".") in (list(OPCODES.keys()) + ["sps", "srs", "lit", "jmp", "jmpc", "call"]):
+                        opcode.opcode, oflags = opcode.opcode.split(".")
+
+                        for char in oflags:
+                            flags |= FLAGS[char]
 
                 if opcode.opcode == "sps":
                     num = utils.req_int(opcode.args[0], [len(binary) + 1], tosplice, binary, ws, root_label)
@@ -395,8 +405,7 @@ def process(text):
                 elif opcode.opcode in OPCODES.keys():
                     binary += bytearray([OPCODES[opcode.opcode] | flags])
                 else:
-                    if flags & 0b10000000:
-                        opcode.opcode += "r"
+                    opcode.opcode = sopcode
 
                     if opcode.opcode.startswith("."):
                         opcode.opcode = root_label + opcode.opcode
@@ -435,7 +444,7 @@ def process(text):
         val = labels[splice["label"]]
         size = splice["size"]
 
-        assert size == 4, "Unaligned address while splicing"
+        assert size == 8, "Unaligned address while splicing"
 
         for i in range(0, size):
             binary[at] = val % 256
@@ -455,23 +464,23 @@ def process(text):
         symbols.append([0x01, labels[glob], glob])
 
     obj = bytes()
-    obj += b"embo"
-    obj += origin.to_bytes(4, byteorder="little")
-    obj += (1).to_bytes(4, byteorder="little")
+    obj += b"techno<3"
+    obj += origin.to_bytes(8, byteorder="little")
+    obj += (1).to_bytes(8, byteorder="little")
 
-    obj += origin.to_bytes(4, byteorder="little")
+    obj += origin.to_bytes(8, byteorder="little")
 
-    obj += len(binary).to_bytes(4, byteorder="little")
+    obj += len(binary).to_bytes(8, byteorder="little")
     obj += binary
 
-    obj += len(relocs).to_bytes(4, byteorder="little")
+    obj += len(relocs).to_bytes(8, byteorder="little")
     for reloc in relocs:
-        obj += reloc.to_bytes(4, byteorder="little")
+        obj += reloc.to_bytes(8, byteorder="little")
 
-    obj += len(symbols).to_bytes(4, byteorder="little")
+    obj += len(symbols).to_bytes(8, byteorder="little")
     for symbol in symbols:
         obj += bytes([symbol[0]])
-        obj += symbol[1].to_bytes(4, byteorder="little")
+        obj += symbol[1].to_bytes(8, byteorder="little")
         obj += symbol[2].encode() + b"\x00"
 
     return obj

@@ -2,6 +2,7 @@
 import sys
 
 OPCODES = ['nop', 'lit', 'sps', 'drop', 'dup', 'swap', 'over', 'rot', 'eq', 'not', 'gth', 'lth', 'sjmp', 'sjmpc', 'scall', 'sth', 'add', 'sub', 'mul', 'div', 'mod', 'and', 'or', 'xor', 'shl', 'ldb', 'ldw', 'stb', 'stw', 'srel', 'sbp', 'native']
+FLAGS = {"r": 0x80, "a": 0x40, "f": 0x20}
 
 if len(sys.argv) < 2:
     print(sys.argv[0], "<file>", "[<origin>]")
@@ -21,19 +22,25 @@ def read_byte(buf):
     return c[0]
 
 def read_word(buf):
-    return read_byte(buf) | (read_byte(buf) << 8) | (read_byte(buf) << 16) | (read_byte(buf) << 24)
+    return read_byte(buf) | (read_byte(buf) << 8) | (read_byte(buf) << 16) | (read_byte(buf) << 24) | read_byte(buf + 32) | (read_byte(buf) << 8 + 32) | (read_byte(buf) << 16 + 32) | (read_byte(buf) << 24 + 32)
 
 with open(sys.argv[1], "rb") as file:
     while True:
         at = file.tell()
 
         opcode = read_byte(file)
-        is_rs = (opcode & 0b10000000) > 0
         func = opcode & 0b11111
 
-        name = "0x" + hex(at + origin)[2:].zfill(8) + ": " + OPCODES[func]
-        if is_rs:
-            name += "r"
+        name = "0x" + hex(at + origin)[2:].zfill(16) + ": " + OPCODES[func]
+
+        flags = ""
+        for key, val in FLAGS:
+            if opcode & val:
+                flags += key
+
+        if flags != "":
+            name += "." + flags
+
         if 0 < func < 3:
             name += " 0x" + hex(read_word(file))[2:]
 
