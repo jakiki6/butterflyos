@@ -237,16 +237,15 @@ long_mode:
 	mov gs, ax
 	mov fs, ax
 
-	jmp $
-;	xor rax, rax
-;	mov ax, word [vbe_screen.width]
-;	mov dword [0x202004], eax
-;	mov ax, word [vbe_screen.height]
-;       mov dword [0x202008], eax
-;	mov ax, word [vbe_screen.physical_buffer]
-;       mov dword [0x20200c], eax
-;	mov ax, word [vbe_screen.bytes_per_line]
-;	mov dword [0x202010], eax
+	xor rax, rax
+	mov ax, word [vbe_screen.width]
+	mov qword [0x202008], rax
+	mov ax, word [vbe_screen.height]
+	mov qword [0x202010], rax
+	mov eax, dword [vbe_screen.physical_buffer]
+	mov qword [0x202018], rax
+	mov ax, word [vbe_screen.bytes_per_line]
+	mov qword [0x202020], rax
 
 	jmp 0x10000
 

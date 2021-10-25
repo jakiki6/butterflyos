@@ -1,9 +1,9 @@
 all: run
 
 run: os.img
-	qemu-system-i386 -hda $< -D log.txt -d int -machine smm=off -no-reboot -serial stdio > trace.log
+	qemu-system-x86_64 -hda $< -D log.txt -d int -machine smm=off -no-reboot -serial stdio > trace.log
 rundb: os.img
-	qemu-system-i386 -hda $< -no-reboot -gdb tcp::1337 -S
+	qemu-system-x86_64 -hda $< -no-reboot -gdb tcp::1337 -S
 
 os.img:
 	make -C loader all
