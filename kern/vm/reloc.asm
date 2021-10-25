@@ -1,9 +1,11 @@
-	bits 32
+	bits 64
 	org 0x10000
 
-_start:	mov esi, vm
-	mov edi, 0x200000
-	mov ecx, vm.end - vm
+_start: call .ip
+.ip:	pop rsi
+	add rsi, vm - .ip
+	mov rdi, 0x200000
+	mov rcx, vm.end - vm
 	rep movsb
 
 	jmp 0x200000

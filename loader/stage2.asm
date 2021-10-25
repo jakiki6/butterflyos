@@ -145,50 +145,108 @@ stage2:	pusha
 	jmp .rd
 
 .done:
+
+	push cs
+	pop ds
+	push cs
+	pop es
+
 	in al, 0x92			; enable A20 line
 	or al, 0x02
 	out 0x92, al
+
+	mov di, PAGING_BUFFER
+
+	push di
+	mov ecx, 0x1000
+	xor eax, eax
+	cld
+	rep stosd
+	pop di
+
+	lea eax, [es:di + 0x1000]
+	or eax, 0b11
+	mov dword [es:di], eax
+
+	lea eax, [es:di + 0x2000]
+	or eax, 0b11
+	mov dword [es:di + 0x1000], eax
+
+	push di
+
+	lea di, [di + 0x2000]
+	mov eax, 0b10000011
+
+.loop_pt:
+	mov [es:di], eax
+	add eax, 0x1000
+	add di, 8
+	cmp eax, 0x200000
+	jb .loop_pt
+
+	pop di
 
 	cli
 	mov al, 0xff			; disable all irqs
 	out 0xa1, al
 	out 0x21, al
 
-	lidt [idt]			; load empty idt
+	nop
+	nop
+
+	lidt [idt]
+
+	mov eax, 0b10100000		; set pae and pge bit
+	mov cr4, eax
+
+	mov edx, PAGING_BUFFER		; point to pml4
+	mov cr3, edx
+
+	mov ecx, 0xc0000080		; read from efer
+	rdmsr
+
+	or eax, 0x00000100		; set lme bit
+	wrmsr
+
+	mov ebx, cr0			; activate long mode
+	or ebx, 0x80000001		; enable paging and protection
+	mov cr0, ebx
+
+	nop
+	nop
+
 	lgdt [gdt.desc]			; load gdt
 
-	mov eax, cr0
-	or eax, 1			; enable protection
-	mov cr0, eax
-
-	jmp 0x08:pmode			; JUMP (and survive ig)
+	jmp 0x08:long_mode		; JUMP
 
 	align 8
 gdt:
-.null:	dd 0, 0
-.code:	db 0xff, 0xff, 0, 0, 0, 10011010b, 11001111b, 0
-.data:	db 0xff, 0xff, 0, 0, 0, 10010010b, 11001111b, 0
+.null:	dq 0x0000000000000000		; unused
+.code:	dq 0x00209A0000000000		; 64 bit r-x
+.data:	dq 0x0000920000000000		; 64 bit rw-
 .desc:
 	dw gdt.desc - gdt - 1
 	dd gdt
 
-	bits 32
-pmode:	mov ax, 0x10
+	bits 64
+long_mode:
+	mov rax, 0x10
 	mov ds, ax
 	mov es, ax
-	mov fs, ax
-	mov gs, ax
 	mov ss, ax
+	mov gs, ax
+	mov fs, ax
 
-	xor eax, eax
-	mov ax, word [vbe_screen.width]
-	mov dword [0x202004], eax
-	mov ax, word [vbe_screen.height]
-        mov dword [0x202008], eax
-	mov ax, word [vbe_screen.physical_buffer]
-        mov dword [0x20200c], eax
-	mov ax, word [vbe_screen.bytes_per_line]
-	mov dword [0x202010], eax
+	jmp $
+;	xor rax, rax
+;	mov ax, word [vbe_screen.width]
+;	mov dword [0x202004], eax
+;	mov ax, word [vbe_screen.height]
+;       mov dword [0x202008], eax
+;	mov ax, word [vbe_screen.physical_buffer]
+;       mov dword [0x20200c], eax
+;	mov ax, word [vbe_screen.bytes_per_line]
+;	mov dword [0x202010], eax
 
 	jmp 0x10000
 

@@ -33,7 +33,9 @@ DISABLE_TRACE: \
 	in al, dx
 %endmacro
 
-start:	mov esp, 0x1f0000
+start:	jmp $
+
+	mov esp, 0x1f0000
 
 	call init_serial
 
