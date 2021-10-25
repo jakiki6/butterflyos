@@ -9,24 +9,24 @@ DISABLE_TRACE: \
 MASK_RS: \
 	equ 0x01
 MASK_ALT: \
-	eq 0x02
+	equ 0x02
 MASK_FLOAT: \
-	eq 0x04
+	equ 0x04
 
 %macro push_ps 1
 	sub rbp, 8
-	mov qword [rbp], %1
+	mov qword [r8], %1
 %endmacro
 %macro pop_ps 1
-	mov %1, qword [rbp]
+	mov %1, qword [r8]
 	add rbp, 8
 %endmacro
 %macro push_rs 1
         sub rdi, 8
-	mov dword [rdi], %1
+	mov qword [r9], %1
 %endmacro
 %macro pop_rs 1
-        mov %1, dword [rdi]
+        mov %1, qword [r9]
         add rdi, 8
 %endmacro
 
@@ -40,9 +40,7 @@ MASK_FLOAT: \
 	in al, dx
 %endmacro
 
-start:	jmp $
-
-	mov rsp, 0x1f0000
+start:	mov rsp, 0x1f0000
 
 	call init_serial
 
@@ -50,7 +48,8 @@ start:	jmp $
 
 	; check magic
 	lodsq
-	cmp rax, 0x6f626d65
+	mov rbx, 0x333c6f6e68636574
+	cmp rax, rbx
 	jne error
 
 	; entry
@@ -75,7 +74,7 @@ vm:	; registers:
 	; rsi=pc r8=ps r9=rs r10=bp r11=flags
 
 	; setup registers
-	mov rsi, dword [entry]
+	mov rsi, qword [entry]
 
 .main:	cmp byte [DISABLE_TRACE], 1
 	je .notrace
@@ -116,7 +115,7 @@ vm:	; registers:
 	mov bl, al
 	shl rbx, 3
 	add rbx, func_table
-	mov rbx, dword [rbx]
+	mov rbx, qword [rbx]
 
 	; call it
 	push .main
@@ -147,7 +146,8 @@ abovetorax:
 .no:    xor rax, rax
         ret
 
-error:	lidt [.fake_idt]
+error:	jmp $
+	lidt [.fake_idt]
 	int 0x69
 .fake_idt:
 	dw 0
@@ -304,7 +304,7 @@ func_lit:
 func_sstack:
 	lodsq
 	mov rbx, r8
-	mov r8, tax
+	mov r8, rax
 	push_ps rbx
 	ret
 
@@ -470,9 +470,11 @@ func_shift:
 	pop_ps rax
 
 	mov rcx, rbx
-	and rcx, 0x7fffffffffffffff
+	mov rdx, 0x7fffffffffffffff
+	and rcx, rdx
 
-	test rbx, 0x800000000000000000
+	inc rdx
+	test rbx, rdx
 	je .shr
 
 	shl rax, cl
