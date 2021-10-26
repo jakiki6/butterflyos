@@ -71,9 +71,10 @@ start:	mov rsp, 0x1f0000
 	rep movsb
 
 vm:	; registers:
-	; rsi=pc r8=ps r9=rs r10=bp r11=flags
+	; rsi=pc r8=ps r9=rs r10=bp r11=flags r12=cfg
 
 	; setup registers
+	mov r12, 0xffffffffffffffff
 	mov rsi, qword [entry]
 
 .main:	cmp byte [DISABLE_TRACE], 1
@@ -206,7 +207,7 @@ write_hex:
 
 	mov rcx, 8
 .loop:	mov rax, rbx
-	shr rax, 24
+	shr rax, (64 - 8)
 	call write_hex_byte
 	shl rbx, 8
 	loop .loop

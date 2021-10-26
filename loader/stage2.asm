@@ -168,13 +168,13 @@ stage2:	pusha
 	or eax, 0b11
 	mov dword [es:di], eax
 
-	lea eax, [es:di + 0x2000]
-	or eax, 0b11
-	mov dword [es:di + 0x1000], eax
+;	lea eax, [es:di + 0x2000]
+;	or eax, 0b11
+;	mov dword [es:di + 0x1000], eax
 
 	push di
 
-	lea di, [di + 0x2000]
+	lea di, [di + 0x1000]
 	mov eax, 0b10000011
 
 .loop_pt:
