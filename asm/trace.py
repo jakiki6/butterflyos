@@ -44,10 +44,10 @@ with open(sys.argv[1], "rb") as binary:
         try:
             ropcode = read_byte(binary, pc - origin)
         except:
-            print("Out of bounds fetch")
+            print(f"Out of bounds fetch at 0x{hex(pc)[2:].zfill(16)}")
             exit(1)
 
-        is_rs = (ropcode & 0b10000000) > 0
+        flags = ropcode >> 5
         func = ropcode & 0b11111
 
         if 0 < func < 3:
@@ -56,12 +56,19 @@ with open(sys.argv[1], "rb") as binary:
             val = None
 
         opcode = OPCODES[func]
-        if is_rs:
-            opcode += "r"
+        if flags:
+            opcode += "."
+
+            if flags & 4:
+                opcode += "r"
+            if flags & 2:
+                opcode += "a"
+            if flags & 1:
+                opcode += "f"
 
         if opcode == "scall":
             level += 1
-        elif opcode == "sjmpr":
+        elif opcode == "sjmp.r":
             level -= 1
 
         if olevel < 0:
@@ -72,7 +79,7 @@ with open(sys.argv[1], "rb") as binary:
 
         if opcode == "scall":
             prefix += ") "
-        elif opcode == "sjmpr":
+        elif opcode == "sjmp.r":
             prefix = prefix[:-2] + "\\ "
 
-        print("0x" + hex(pc)[2:].zfill(8) + ": " + prefix + opcode + (" 0x" + hex(val)[2:].zfill(8) if val != None else ""))
+        print("0x" + hex(pc)[2:].zfill(16) + ": " + prefix + opcode + (" 0x" + hex(val)[2:].zfill(8) if val != None else ""))

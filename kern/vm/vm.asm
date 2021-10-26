@@ -14,20 +14,20 @@ MASK_FLOAT: \
 	equ 0x04
 
 %macro push_ps 1
-	sub rbp, 8
+	sub r8, 8
 	mov qword [r8], %1
 %endmacro
 %macro pop_ps 1
 	mov %1, qword [r8]
-	add rbp, 8
+	add r8, 8
 %endmacro
 %macro push_rs 1
-        sub rdi, 8
+        sub r9, 8
 	mov qword [r9], %1
 %endmacro
 %macro pop_rs 1
         mov %1, qword [r9]
-        add rdi, 8
+        add r9, 8
 %endmacro
 
 %macro outb 2
@@ -298,9 +298,14 @@ func_nop:
 	jmp .hlt
 
 func_lit:
+	test r11, MASK_ALT
+	je .short
 	lodsq
-	push_ps rax
+.ret:	push_ps rax
 	ret
+.short:	xor rax, rax
+	lodsb
+	jmp short .ret
 
 func_sstack:
 	lodsq
