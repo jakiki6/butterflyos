@@ -85,6 +85,9 @@ vm:	; registers:
 	xchg rax, rsi
 .notrace:
 
+	cmp rsi, 0x200000
+	jb error
+
 	; clean up
 	test r11, MASK_RS
 	jne .flags
@@ -147,12 +150,22 @@ abovetorax:
 .no:    xor rax, rax
         ret
 
-error:	jmp $
+error:	mov rsi, .msg
+.print:	lodsb
+
+	cmp al, 0
+	je .reboot
+
+	call write_serial
+	jmp .print
+
+.reboot:
 	lidt [.fake_idt]
 	int 0x69
 .fake_idt:
 	dw 0
 	dd 0
+.msg:	db "Error detected!", 0x0a, 0
 
 init_serial:
 	outb SERIAL_PORT + 1, 0x00
@@ -167,7 +180,7 @@ init_serial:
 
 	inb SERIAL_PORT + 0
 	cmp al, 0xae
-	jne error
+	jne error.reboot
 
 	outb SERIAL_PORT + 4, 0x0f
 	ret

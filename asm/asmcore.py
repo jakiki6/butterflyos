@@ -368,7 +368,7 @@ def process(text):
 
                 flags = 0
                 if "." in opcode.opcode:
-                    if opcode.opcode.split(".") in (list(OPCODES.keys()) + ["sps", "srs", "lit", "jmp", "jmpc", "call"]):
+                    if opcode.opcode.split(".")[0] in (list(OPCODES.keys()) + ["sps", "srs", "lit", "jmp", "jmpc", "call"]):
                         opcode.opcode, oflags = opcode.opcode.split(".")
 
                         for char in oflags:

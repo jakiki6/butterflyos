@@ -20,7 +20,10 @@ with open(sys.argv[2], "r") as file:
         if len(line.strip()) == 0:
             continue
 
-        pcs.append(int(line, 16))
+        try:
+            pcs.append(int(line, 16))
+        except:
+            pass
 
 def _read_byte(buf):
     c = buf.read(1)
@@ -82,4 +85,4 @@ with open(sys.argv[1], "rb") as binary:
         elif opcode == "sjmp.r":
             prefix = prefix[:-2] + "\\ "
 
-        print("0x" + hex(pc)[2:].zfill(16) + ": " + prefix + opcode + (" 0x" + hex(val)[2:].zfill(8) if val != None else ""))
+        print("0x" + hex(pc)[2:].zfill(16) + ": " + prefix + opcode + (" 0x" + hex(val)[2:].zfill(16) if val != None else ""))
