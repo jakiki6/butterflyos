@@ -74,8 +74,28 @@ vm:	; registers:
 	; rsi=pc r8=ps r9=rs r10=bp r11=flags r12=cfg
 
 	; setup registers
+	mov r8, 0x400000
+	mov r9, 0x3f0000
+	mov r10, 0x400000
+	xor r11, r11
 	mov r12, 0xffffffffffffffff
 	mov rsi, qword [entry]
+
+	; self test
+	rdtsc
+	push_ps rax
+	pop_ps rbx
+	cmp rax, rbx
+	jne error
+
+	rdtsc
+        push_rs rax
+        pop_rs rbx
+        cmp rax, rbx
+        jne error
+
+	; burn "setup completed" in cfg
+	and r12, ~(1)
 
 .main:	cmp byte [DISABLE_TRACE], 1
 	je .notrace
