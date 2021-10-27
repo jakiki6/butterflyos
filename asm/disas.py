@@ -22,7 +22,7 @@ def read_byte(buf):
     return c[0]
 
 def read_word(buf):
-    return read_byte(buf) | (read_byte(buf) << 8) | (read_byte(buf) << 16) | (read_byte(buf) << 24) | read_byte(buf + 32) | (read_byte(buf) << 8 + 32) | (read_byte(buf) << 16 + 32) | (read_byte(buf) << 24 + 32)
+    return read_byte(buf) | (read_byte(buf) << 8) | (read_byte(buf) << 16) | (read_byte(buf) << 24) | (read_byte(buf) << 32) | (read_byte(buf) << 8 + 32) | (read_byte(buf) << 16 + 32) | (read_byte(buf) << 24 + 32)
 
 with open(sys.argv[1], "rb") as file:
     while True:
@@ -34,7 +34,7 @@ with open(sys.argv[1], "rb") as file:
         name = "0x" + hex(at + origin)[2:].zfill(16) + ": " + OPCODES[func]
 
         flags = ""
-        for key, val in FLAGS:
+        for key, val in FLAGS.items():
             if opcode & val:
                 flags += key
 
