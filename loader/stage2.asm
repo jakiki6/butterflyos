@@ -158,33 +158,37 @@ stage2:	pusha
 	mov di, PAGING_BUFFER
 
 	push di
-	mov ecx, 0x1000
-	xor eax, eax
+	mov ecx, 0x5000
+	xor ax, ax
 	cld
-	rep stosd
+	rep stosb
 	pop di
 
 	lea eax, [es:di + 0x1000]
 	or eax, 0b11
-	mov dword [es:di], eax
-
-;	lea eax, [es:di + 0x2000]
-;	or eax, 0b11
-;	mov dword [es:di + 0x1000], eax
-
-	push di
+	mov dword [es:di+0], eax
+	lea eax, [es:di + 0x2000]
+        or eax, 0b11
+        mov dword [es:di+8], eax
+	lea eax, [es:di + 0x3000]
+        or eax, 0b11
+        mov dword [es:di+16], eax
+	lea eax, [es:di + 0x4000]
+        or eax, 0b11
+        mov dword [es:di+24], eax
 
 	lea di, [di + 0x1000]
+	lea bx, [di + 0x4000]
+
 	mov eax, 0b10000011
 
 .loop_pt:
 	mov [es:di], eax
 	add eax, 0x1000
 	add di, 8
-	cmp eax, 0x200000
+	cmp di, bx
 	jb .loop_pt
 
-	pop di
 
 	cli
 	mov al, 0xff			; disable all irqs
@@ -276,6 +280,7 @@ strcmp:	cmp byte [si], 0
 .error:	stc
 .success:
 	ret
+
 
 DAP:
 .header:
