@@ -248,6 +248,7 @@ long_mode:
 	mov qword [0x202010], rax
 	mov eax, dword [vbe_screen.physical_buffer]
 	mov qword [0x202018], rax
+	xor rax, rax
 	mov ax, word [vbe_screen.bytes_per_line]
 	mov qword [0x202020], rax
 
