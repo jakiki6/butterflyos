@@ -37,8 +37,7 @@ stage1:
 
 	clc
 	int 0x13
-	jc .load_all
-
+	jc error
 
 	xor ax, ax
 	xor bx, bx
@@ -49,6 +48,17 @@ stage1:
 	xor bp, bp
 
 	jmp 0xa000
+
+error:	push 0xb800
+	pop es
+	xor di, di
+	mov ax, 0x4f20
+	mov cx, 0x07d0
+	rep stosw
+
+	xor ax, ax
+	int 0x16
+	int 0x18
 
 times 256 - ($ - $$) nop
 

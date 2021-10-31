@@ -2,14 +2,7 @@ org 0xa000
 
 %define PAGING_BUFFER 0x4000
 
-stage2:	pusha
-	mov ax, 640
-	mov bx, 480
-	mov cl, 8
-	call vbe_set_mode
-	mov bp, errors.vesa
-	jc error
-	popa
+stage2:	cld
 
 	mov eax, dword [0x7c00 + 12]	; total blocks
 	shl eax, 3			; times sizeof(uint64_t)
@@ -145,11 +138,20 @@ stage2:	pusha
 	jmp .rd
 
 .done:
-
 	push cs
 	pop ds
 	push cs
 	pop es
+
+	pusha
+	mov ax, 640
+	mov bx, 480
+	mov cl, 8
+	call vbe_set_mode
+	mov bp, errors.vesa
+	jc error
+	popa
+
 
 	in al, 0x92			; enable A20 line
 	or al, 0x02
@@ -160,7 +162,6 @@ stage2:	pusha
 	push di
 	mov ecx, 0x5000
 	xor ax, ax
-	cld
 	rep stosb
 	pop di
 
@@ -255,7 +256,28 @@ long_mode:
 	jmp 0x10000
 
 	bits 16
-error:
+error:	mov ah, 0x01
+	mov cx, 0x2607
+	int 0x10
+
+	mov ah, 0x02
+	xor bx, bx
+	xor dx, dx
+	int 0x10
+
+	pusha
+	push es
+
+	push 0xb800
+	pop es
+	xor di, di
+	mov ax, 0x1f20
+	mov cx, 0x07d0
+	rep stosw
+
+	pop es
+	popa
+
 	mov ah, 0x0e
 	mov bx, 0x0007
 	mov si, bp
