@@ -1,4 +1,4 @@
-import sys, math, os
+import sys, math, os, binascii
 import utils
 
 OPCODES = {
@@ -463,8 +463,9 @@ def process(text):
 
         symbols.append([0x01, labels[glob], glob])
 
-    obj = bytes()
+    obj = bytearray()
     obj += b"techno<3"
+    obj += bytes(4)
     obj += origin.to_bytes(8, byteorder="little")
     obj += (1).to_bytes(8, byteorder="little")
 
@@ -482,5 +483,11 @@ def process(text):
         obj += bytes([symbol[0]])
         obj += symbol[1].to_bytes(8, byteorder="little")
         obj += symbol[2].encode() + b"\x00"
+
+    crc = (binascii.crc32(obj[12:]) % (1<<32)).to_bytes(4, "little")
+    obj[8] = crc[0]
+    obj[9] = crc[1]
+    obj[10] = crc[2]
+    obj[11] = crc[3]
 
     return obj

@@ -52,6 +52,9 @@ start:	mov rsp, 0x1f0000
 	cmp rax, rbx
 	jne error
 
+	; crc32
+	lodsd
+
 	; entry
 	lodsq
 	mov qword [entry], rax
