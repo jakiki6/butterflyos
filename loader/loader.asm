@@ -48,6 +48,11 @@ stage1:
 	int 0x13
 	jc error
 
+	inc dword [0xa002]
+
+	mov ah, 0x43
+	int 0x13
+
 	xor ax, ax
 	xor bx, bx
 	xor cx, cx

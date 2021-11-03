@@ -2,6 +2,9 @@ org 0xa000
 
 %define PAGING_BUFFER 0x4000
 
+	jmp short stage2
+	dd 0
+
 stage2:	cld
 
 	mov eax, dword [0x7c00 + 12]	; total blocks
