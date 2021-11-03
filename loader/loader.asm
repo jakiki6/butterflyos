@@ -70,8 +70,18 @@ error:	push 0xb800
 	mov cx, 0x07d0
 	rep stosw
 
-	xor ax, ax
+.inst:	xor ax, ax
 	int 0x16
+
+	cmp al, 'r'
+	je .reboot
+	cmp al, ' '
+	je .continue
+	jmp .inst
+
+.reboot:
+	jmp 0xffff:0x0000
+.continue:
 	int 0x18
 
 times 256 - ($ - $$) nop
