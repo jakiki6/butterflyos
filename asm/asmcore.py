@@ -465,7 +465,7 @@ def process(text):
 
     obj = bytearray()
     obj += b"techno<3"
-    obj += bytes(4)
+    obj += bytes(8)
     obj += origin.to_bytes(8, byteorder="little")
     obj += (1).to_bytes(8, byteorder="little")
 

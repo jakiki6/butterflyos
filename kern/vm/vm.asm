@@ -55,6 +55,9 @@ start:	mov rsp, 0x1f0000
 	; crc32
 	lodsd
 
+	; flags
+	lodsd
+
 	; entry
 	lodsq
 	mov qword [entry], rax

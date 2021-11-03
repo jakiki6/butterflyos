@@ -152,6 +152,9 @@ stage2:	cld
 	jc error
 	popa
 
+	mov ebx, dword [vbe_screen.physical_buffer]
+	rdtsc
+	mov dword [ebx], eax
 
 	in al, 0x92			; enable A20 line
 	or al, 0x02
