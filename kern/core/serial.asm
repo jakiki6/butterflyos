@@ -1,7 +1,7 @@
 global SerialSetup
 SerialSetup:
 	; set DISABLE_TRACE flag to not get stuck
-	1 0x202000 stw
+;	1 0x202000 stw
 
 	ret
 

@@ -5,10 +5,7 @@ FramebufferInit:
 	0x202018 ldw FramebufferCfg.buf stw
 	0x202020 ldw FramebufferCfg.bpl stw
 
-	FramebufferCfg.buf ldw
-.loop:	dup 0xff swap stb
-	1 add
-	jmp .loop
+	ret
 
 global FramebufferCfg
 FramebufferCfg:
