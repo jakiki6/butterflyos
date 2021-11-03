@@ -30,6 +30,15 @@ stage1:
 
 	sti
 
+	mov ah, 0x01
+        mov cx, 0x2607
+        int 0x10
+
+        mov ah, 0x02
+        xor bx, bx
+        xor dx, dx
+        int 0x10
+
 .load_all:
 	mov ah, 0x42
 	mov dl, byte [drive]
