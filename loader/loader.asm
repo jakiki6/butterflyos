@@ -66,7 +66,7 @@ stage1:
 error:	push 0xb800
 	pop es
 	xor di, di
-	mov ax, 0x4f20
+	mov ax, 0x4f65
 	mov cx, 0x07d0
 	rep stosw
 
@@ -75,6 +75,8 @@ error:	push 0xb800
 
 	cmp al, 'r'
 	je .reboot
+	cmp al, 'p'
+	je .poweroff
 	cmp al, ' '
 	je .continue
 	jmp .inst
@@ -83,6 +85,22 @@ error:	push 0xb800
 	jmp 0xffff:0x0000
 .continue:
 	int 0x18
+.poweroff:
+	mov ax, 0x5301
+	xor bx, bx
+	int 0x15
+
+	mov ax, 0x530e
+	xor bx, bx
+	mov cx, 0x0102
+	int 0x15
+
+	mov ax, 0x5307
+	mov bx, 0x0001
+	mov cx, 0x0003
+	int 0x15
+
+	jmp .inst
 
 times 256 - ($ - $$) nop
 
