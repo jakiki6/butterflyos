@@ -7,11 +7,11 @@ DISABLE_TRACE: \
 	equ 0x202000
 
 MASK_RS: \
-	equ 0x01
+	equ 0
 MASK_ALT: \
-	equ 0x02
+	equ 1
 MASK_FLOAT: \
-	equ 0x04
+	equ 2
 
 %macro push_ps 1
 	sub r8, 8
@@ -109,25 +109,25 @@ vm:	; registers:
 	jb error
 
 	; clean up
-	test r11, MASK_RS
-	jne .flags
+	bt r11, MASK_RS
+	jnc .flags
 	xchg r8, r9
 
 .flags:	; clean up flags
-	and r11, 0xffffffffffffff00
+	xor r11, r11
 
 	lodsb
 
-.isr:	test al, 0b10000000
-	jne .isa
-	or r11, MASK_RS
+.isr:	bt ax, 7
+	jnc .isa
+	or r11, (1 << MASK_RS)
 	xchg r8, r9
-.isa:	test al, 0b01000000
-	jne .isf
-	or r11, MASK_ALT
-.isf:	test al, 0b00100000
-	jne .nois
-	or r11, MASK_FLOAT
+.isa:	bt ax, 6
+	jnc .isf
+	or r11, (1 << MASK_ALT)
+.isf:	bt ax, 5
+	jnc .nois
+	or r11, (1 << MASK_FLOAT)
 .nois:
 
 .execute:
@@ -185,7 +185,7 @@ error:	mov rsi, .msg
 .fake_idt:
 	dw 0
 	dd 0
-.msg:	db "Error detected!", 0x0a, 0
+.msg:	db "fuck", 0x0a, 0
 
 init_serial:
 	outb SERIAL_PORT + 1, 0x00
@@ -322,8 +322,8 @@ func_table:
         dq func_native  ; 0b11111
 
 func_nop:
-	test r11, MASK_ALT
-	jne .hlt
+	bt r11, MASK_ALT
+	jnc .hlt
 	ret
 .hlt:	cli
 	pause
@@ -331,14 +331,9 @@ func_nop:
 	jmp .hlt
 
 func_lit:
-	test r11, MASK_ALT
-	je .short
 	lodsq
-.ret:	push_ps rax
+	push_ps rax
 	ret
-.short:	xor rax, rax
-	lodsb
-	jmp short .ret
 
 func_sstack:
 	lodsq
@@ -512,9 +507,8 @@ func_shift:
 	mov rdx, 0x7fffffffffffffff
 	and rcx, rdx
 
-	inc rdx
-	test rbx, rdx
-	je .shr
+	bt rbx, 63
+	jc .shr
 
 	shl rax, cl
 	jmp .ret
@@ -553,7 +547,7 @@ func_stw:
 func_srel:
 	pop_ps rax
 
-	test r11, MASK_ALT
+	bt r11, MASK_ALT
 	jne .n
 .p:	add rax, rsi
 	jmp .r
