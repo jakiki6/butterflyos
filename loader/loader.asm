@@ -5,8 +5,7 @@ jmp stage1
 
 times 58 db 0x69
 
-stage1:
-	cli
+stage1:	cli
 	xor ax, ax
 	xor bx, bx
 	xor cx, cx
@@ -66,9 +65,12 @@ stage1:
 error:	push 0xb800
 	pop es
 	xor di, di
-	mov ax, 0x4f65
+	mov ax, 0x4f20
 	mov cx, 0x07d0
 	rep stosw
+
+	mov si, .msg
+	call print
 
 .inst:	xor ax, ax
 	int 0x16
@@ -77,6 +79,10 @@ error:	push 0xb800
 	je .reboot
 	cmp al, 'p'
 	je .poweroff
+	cmp al, 'd'
+	je .diagnostic
+	cmp al, 'c'
+	je .chainload
 	cmp al, ' '
 	je .continue
 	jmp .inst
@@ -101,10 +107,79 @@ error:	push 0xb800
 	int 0x15
 
 	jmp .inst
+.diagnostic:
+	mov dl, byte [drive]
+	mov ah, 0x01
+	int 0x13
 
-times 256 - ($ - $$) nop
+	mov dl, ah
+	mov ah, 0x0e
 
-drive:	db 0
+	mov al, dl
+	shr al, 4
+	mov bx, .table
+	xlat
+
+	mov bx, 0x0007
+	int 0x10
+
+	mov al, dl
+	and al, 0x0f
+	mov bx, .table
+	xlat
+
+	mov bx, 0x0007
+        int 0x10
+
+	mov al, 0x0a
+	int 0x10
+	mov al, 0x0d
+	int 0x10
+
+	jmp .inst
+.chainload:
+	mov di, 0xa000
+.loop:	call read_one
+	mov bl, al
+
+	call read_one
+	shl bl, 4
+	or al, bl
+
+	stosb
+
+	mov ax, 0x0e00 | '.'
+	mov bx, 0x0007
+	int 0x10
+
+	jmp .loop
+	
+.msg:	db "Error while loading stage2", 0x0a, 0x0d, "Actions: (r)eboot, (p)oweroff, (d)iagnostic, (c)hainload or continue (space)", 0x0a, 0x0d, 0x00
+.table:	db "0123456789abcdef"
+
+print:	mov ah, 0x0e
+	mov bx, 0x0007
+.print:	lodsb
+	cmp al, 0x00
+	je .ret
+	int 0x10
+	jmp .print
+.ret:	ret
+
+read_one:
+	xor ax, ax
+	int 0x16
+
+	cmp al, 0x0d
+	je .boot
+
+	sub al, 'a'
+
+	ret
+.boot:	mov si, .msg
+	call print
+	jmp 0xa000
+.msg:	db 0x0a, 0x0d, "jumping ...", 0x0a, 0x0d, 0x00
 
 DAP:
 .header:
@@ -124,4 +199,5 @@ DAP:
 .end:
 
 times 510 - ($ - $$) nop
+drive:	equ $
 dw 0xaa55

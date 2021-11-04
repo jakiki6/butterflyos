@@ -22,7 +22,7 @@ stage2:	cld
 
 	push ax
 	mov ah, 0x42
-	mov dl, byte [0x7d00]
+	mov dl, byte [0x7dfe]
 	mov si, DAP
 
 	mov bp, errors.read_directory
@@ -45,7 +45,7 @@ stage2:	cld
 
 .skip:	push ax
 	mov ah, 0x42
-	mov dl, byte [0x7d00]
+	mov dl, byte [0x7dfe]
 	mov si, DAP
 
 	clc
@@ -80,7 +80,7 @@ stage2:	cld
 
 	push ax
 	mov ah, 0x42
-	mov dl, byte [0x7d00]
+	mov dl, byte [0x7dfe]
 	mov si, DAP
 
 	mov bp, errors.read_block
@@ -101,7 +101,7 @@ stage2:	cld
 	
 	push ax
 	mov ah, 0x42
-	mov dl, byte [0x7d00]
+	mov dl, byte [0x7dfe]
 	mov si, DAP
 
 	mov bp, errors.read_chain
@@ -129,7 +129,7 @@ stage2:	cld
 	mov dword [DAP.lba_lower], ebx
 	push ax
 	mov ah, 0x42
-	mov dl, byte [0x7d00]
+	mov dl, byte [0x7dfe]
 	mov si, DAP
 
 	mov bp, errors.read_chain
