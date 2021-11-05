@@ -196,6 +196,9 @@ stage2:	cld
 	cmp di, bx
 	jb .loop_pt
 
+	mov ax, 0xec00
+	mov bl, 2
+	int 0x15			; notify bios about our target mode
 
 	cli
 	mov al, 0xff			; disable all irqs
