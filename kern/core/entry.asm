@@ -1,4 +1,4 @@
-	org 0x210000
+	org 0x220000
 
 global KernelEntry
 KernelEntry:

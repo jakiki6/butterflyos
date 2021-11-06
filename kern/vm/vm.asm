@@ -44,6 +44,8 @@ start:	mov rsp, 0x1f0000
 
 	call init_serial
 
+	call upgrade_paging
+
 	mov rsi, kernel_file
 
 	; check magic
@@ -287,6 +289,40 @@ write_hex_byte:
 	pop rax
 	ret
 .table:	db "0123456789abcdef"
+
+upgrade_paging:
+	mov rdi, 0x210000
+	push rdi
+
+	push rdi
+	mov rcx, 0x1000 * (1 + 8)
+	xor rax, rax
+	rep stosb
+	pop rdi
+
+	push rdi
+	mov rax, rdi
+	or rax, 0b11
+	add rax, 0x1000
+
+	mov rcx, 8
+.l4:	stosq
+	add rax, 0x1000
+	loop .l4
+
+	pop rdi
+
+	add rdi, 0x1000
+	mov rax, 0b10000011
+
+	mov rcx, 512 * 8
+.l3:	stosq
+	add rax, 0x1000
+	loop .l3
+
+	pop rdi
+	mov cr3, rdi
+	ret
 
 kernel_file:
 	incbin "main.o"
