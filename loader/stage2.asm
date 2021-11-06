@@ -149,7 +149,7 @@ stage2:	cld
 	pusha
 	mov ax, 640
 	mov bx, 480
-	mov cl, 8
+	mov cl, 24
 	call vbe_set_mode
 	mov bp, errors.vesa
 	jc error
