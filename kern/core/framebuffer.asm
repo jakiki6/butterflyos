@@ -5,7 +5,12 @@ FramebufferInit:
 	0x202018 ldw FramebufferCfg.buf stw
 	0x202020 ldw FramebufferCfg.bpl stw
 
-	ret
+	FramebufferCfg.buf ldw
+.loop:	dup call RngOne swap stb
+	1 add swap 1 sub swap
+	jmp .loop
+
+.ret:	ret
 
 global FramebufferCfg
 FramebufferCfg:

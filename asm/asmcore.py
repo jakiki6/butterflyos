@@ -37,6 +37,7 @@ OPCODES = {
 CONSUMES = {
     "db": -1,
     "dw": -1,
+    "dr": 1,
     "org": 1,
     "%include": -1,
     "%incbin": -1,
@@ -50,6 +51,7 @@ CONSUMES = {
     "call": 1,
     "ret": 0,
     "hlt": 0,
+    "shr": 0,
     "global": 1,
     "extern": 1
 }
@@ -308,6 +310,8 @@ def process(text):
                     num = utils.req_int_big(arg, [len(binary)], tosplice, binary, ws, root_label)
 
                     binary += bytearray(utils.pack_num(num, ws))
+            elif opcode.opcode == "dr":
+                binary += bytes.fromhex(opcode.args[0])
             elif opcode.opcode == "org":
                 if not defined_origin:
                     defined_origin = True
@@ -402,6 +406,8 @@ def process(text):
                     num += origin
                     binary += bytearray([0x01 | flags, *utils.pack_num(num, ws)])
                     binary += bytearray([OPCODES["scall"] | flags])
+                elif opcode.opcode == "shr":
+                    binary += bytearray([0x01 | flags, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x80, OPCODES["xor"] | flags, OPCODES["shl"] | flags])
                 elif opcode.opcode in OPCODES.keys():
                     binary += bytearray([OPCODES[opcode.opcode] | flags])
                 else:
