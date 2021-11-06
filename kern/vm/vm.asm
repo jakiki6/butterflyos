@@ -295,7 +295,7 @@ upgrade_paging:
 	push rdi
 
 	push rdi
-	mov rcx, 0x1000 * (1 + 8)
+	mov rcx, 0x1000 * (1 + 31)
 	xor rax, rax
 	rep stosb
 	pop rdi
@@ -305,7 +305,7 @@ upgrade_paging:
 	or rax, 0b11
 	add rax, 0x1000
 
-	mov rcx, 8
+	mov rcx, 31
 .l4:	stosq
 	add rax, 0x1000
 	loop .l4
@@ -315,9 +315,9 @@ upgrade_paging:
 	add rdi, 0x1000
 	mov rax, 0b10000011
 
-	mov rcx, 512 * 8
+	mov rcx, 512 * 31
 .l3:	stosq
-	add rax, 0x1000
+	add rax, 0x40000000
 	loop .l3
 
 	pop rdi
