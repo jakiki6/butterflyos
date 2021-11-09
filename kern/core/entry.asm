@@ -11,12 +11,6 @@ KernelEntry:
 
 	call SymSetup
 	call SerialSetup
-	call FramebufferInit
-
-.loop:	call RngOne call RngOne call RngOne
-	call RngOne FramebufferCfg.width ldw mod
-	call RngOne FramebufferCfg.height ldw mod
-	call FramebufferDrawPixel
-	jmp .loop
+	call FbInit
 
 .hlt:	hlt
