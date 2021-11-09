@@ -13,6 +13,10 @@ KernelEntry:
 	call SerialSetup
 	call FramebufferInit
 
-	0xff 0xff 0xff 32 32 call FramebufferDrawPixel
+.loop:	0xff 0xff 0xff
+	call RngOne FramebufferCfg.width ldw mod
+	call RngOne FramebufferCfg.height ldw mod
+	call FramebufferDrawPixel
+	jmp .loop
 
 .hlt:	hlt

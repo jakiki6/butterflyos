@@ -25,7 +25,9 @@ FramebufferDrawPixel:
 	dup 24 srel ldw swap stb 1 add
 	dup 16 srel ldw swap stb drop
 
-	sbp ret
+	swap drop swap drop swap drop swap drop swap drop
+
+	sbp drop ret
 
 global FramebufferCfg
 FramebufferCfg:
