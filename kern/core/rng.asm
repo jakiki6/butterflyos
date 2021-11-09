@@ -4,11 +4,20 @@ RngInit:
 	ret
 
 global RngOne
-RngOne:	call RngHw ret
-
+RngOne:	0
+	8 shl call RngOneByte or
+	8 shl call RngOneByte or
+	8 shl call RngOneByte or
+	8 shl call RngOneByte or
+	8 shl call RngOneByte or
+	8 shl call RngOneByte or
+	8 shl call RngOneByte or
+	8 shl call RngOneByte or
+	ret
+	
 global RngOneByte
 RngOneByte:
-	call RngHw 0xff and ret
+	call RngHw 3 shr 0xff and ret
 
 global RngHw
 RngHw:	.bin native ret
