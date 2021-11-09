@@ -17,7 +17,7 @@ RngOne:	0
 	
 global RngOneByte
 RngOneByte:
-	call RngHw 3 shr 0xff and ret
+	call RngHw 1 shr 0xff and ret
 
 global RngHw
 RngHw:	.bin native ret
