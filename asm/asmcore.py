@@ -52,6 +52,7 @@ CONSUMES = {
     "ret": 0,
     "hlt": 0,
     "shr": 0,
+    "inline": 0,
     "global": 1,
     "extern": 1
 }
@@ -229,7 +230,7 @@ def merge(data):
                     data.remove(line)
                     merge(data)
                     break
-            except:
+            except FileNotFoundError:
                 print(f"Cannot open file {line.args[0]}")
                 exit(0)
 
@@ -311,7 +312,7 @@ def process(text):
 
                     binary += bytearray(utils.pack_num(num, ws))
             elif opcode.opcode == "dr":
-                binary += bytes.fromhex(opcode.args[0])
+                binary += bytes.fromhex(opcode.args[0].replace("0x", ""))
             elif opcode.opcode == "org":
                 if not defined_origin:
                     defined_origin = True
@@ -408,6 +409,8 @@ def process(text):
                     binary += bytearray([OPCODES["scall"] | flags])
                 elif opcode.opcode == "shr":
                     binary += bytearray([0x01 | flags, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x80, OPCODES["xor"] | flags, OPCODES["shl"] | flags])
+                elif opcode.opcode == "inline":
+                    binary += bytearray([OPCODES["native"] | 0x40])
                 elif opcode.opcode in OPCODES.keys():
                     binary += bytearray([OPCODES[opcode.opcode] | flags])
                 else:
@@ -415,8 +418,6 @@ def process(text):
 
                     if opcode.opcode.startswith("."):
                         opcode.opcode = root_label + opcode.opcode
-                    else:
-                        root_label = opcode.opcode
 
                     tosplice.append({
                         "label": opcode.opcode,

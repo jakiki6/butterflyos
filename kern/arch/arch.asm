@@ -41,3 +41,7 @@ rng_one:
 
 	push_ps rax
 	ret
+
+debug_hav:
+	pop_ps rax
+	jmp $

@@ -13,4 +13,6 @@ KernelEntry:
 	call SerialSetup
 	call FramebufferInit
 
+	0xff 0xff 0xff 32 32 call FramebufferDrawPixel
+
 .hlt:	hlt

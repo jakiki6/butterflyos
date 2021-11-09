@@ -4,26 +4,11 @@ RngInit:
 	ret
 
 global RngOne
-RngOne:	call RngOneByte	56 shl
-	call RngOneByte 48 shl
-	call RngOneByte 40 shl
-	call RngOneByte 32 shl
-	call RngOneByte 24 shl
-	call RngOneByte 16 shl
-	call RngOneByte 8 shl
-	call RngOneByte
-
-	or or or or or or or
-	ret
+RngOne:	call RngHw ret
 
 global RngOneByte
 RngOneByte:
-	RngSeed ldw
-	0x5deece66d mul
-	0xb add
-	dup RngSeed stw
-	17 shr 0xff and
-	ret
+	call RngHw 0xff and ret
 
 global RngHw
 RngHw:	.bin native ret

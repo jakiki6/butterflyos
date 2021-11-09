@@ -155,10 +155,6 @@ stage2:	cld
 	jc error
 	popa
 
-	mov ebx, dword [vbe_screen.physical_buffer]
-	rdtsc
-	mov dword [ebx], eax
-
 	in al, 0x92			; enable A20 line
 	or al, 0x02
 	out 0x92, al
@@ -195,6 +191,18 @@ stage2:	cld
 	add di, 8
 	cmp di, bx
 	jb .loop_pt
+
+	mov bp, errors.no_cpuid
+	mov eax, 0x80000000
+	cpuid
+	cmp eax, 0x80000001
+	jb error
+
+	mov bp, errors.no_longmode
+	mov eax, 0x80000001
+	cpuid
+	test edx, 1 << 29
+	jz error
 
 	mov ax, 0xec00
 	mov bl, 2
@@ -343,7 +351,11 @@ errors:
 .found_reserved_block:
 	db "Found reserved block while reading chain", 0x0a, 0x0d, 0
 .vesa:
-	db "Your system doesn't seem to support VESA", 0x0a, 0x0d, 0
+	db "Your system doesn't support VESA", 0x0a, 0x0d, 0
+.no_cpuid:
+	db "Your CPU doesn't support CPUID", 0x0a, 0x0d, 0
+.no_longmode:
+	db "Your CPU isn't 64 bit", 0x0a, 0x0d, 0
 
 idt:	dw 0
 	dd 0

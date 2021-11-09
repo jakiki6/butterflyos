@@ -599,13 +599,17 @@ func_srel:
 
 func_sbp:
 	mov rax, r10
+	sub rax, r8
 	pop_ps r10
 	add r10, r8
 	push_ps rax
 	ret
 
 func_native:
-	ret
 	pop_ps rax
-	call rax
-	ret
+
+	bt r11, MASK_ALT
+	jc .inline
+	jmp rax
+.inline:
+	jmp rsi
