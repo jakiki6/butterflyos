@@ -1,7 +1,7 @@
 all: ../os.img
 
 ../os.img: loader.bin stage2.bin
-	qemu-img create $@ 64K
+	qemu-img create $@ 1M
 
 	echfs-utils $@ quick-format 512
 

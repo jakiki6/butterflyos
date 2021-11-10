@@ -25,6 +25,7 @@ SerialWriteString:
 	dup ldb
 	dup 0 eq jmpc .done
 	call SerialWriteChar
+	1 add
 	jmp SerialWriteString
 
 .done:	drop drop ret
