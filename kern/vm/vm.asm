@@ -1,3 +1,7 @@
+%ifndef DEBUG
+	%define DEBUG 0
+%endif
+
 	bits 64
 	org 0x200000
 
@@ -105,13 +109,12 @@ vm:	; registers:
 	; burn "setup completed" in cfg
 	and r12, ~(1)
 
-.main:	cmp byte [DISABLE_TRACE], 1
-	je .notrace
-
+.main:
+	%if DEBUG
 	xchg rax, rsi
 	call write_hex
 	xchg rax, rsi
-.notrace:
+	%endif
 
 	cmp rsi, 0x200000
 	jb error
