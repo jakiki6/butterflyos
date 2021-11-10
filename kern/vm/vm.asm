@@ -50,7 +50,7 @@ start:	mov rsp, 0x1f0000
 
 	; check magic
 	lodsq
-	mov rbx, 0x333c6f6e68636574
+	mov rbx, 0x6f796c6672747462
 	cmp rax, rbx
 	jne error
 

@@ -471,7 +471,7 @@ def process(text):
         symbols.append([0x01, labels[glob], glob])
 
     obj = bytearray()
-    obj += b"techno<3"
+    obj += b"bttrflyo"
     obj += bytes(8)
     obj += origin.to_bytes(8, byteorder="little")
     obj += (1).to_bytes(8, byteorder="little")
