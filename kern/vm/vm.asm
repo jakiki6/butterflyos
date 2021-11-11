@@ -116,9 +116,6 @@ vm:	; registers:
 	xchg rax, rsi
 	%endif
 
-	cmp rsi, 0x200000
-	jb error
-
 	; clean up
 	bt r11, MASK_RS
 	jnc .flags
@@ -146,15 +143,17 @@ vm:	; registers:
 	and al, 0b11111
 
 	; get pointer into function table
-	xor rbx, rbx
-	mov bl, al
-	shl rbx, 3
-	add rbx, func_table
-	mov rbx, qword [rbx]
+	shl al, 3
+	xchg al, bl
+	xor rax, rax
+	xchg al, bl
+	add rax, func_table
+
+	mov rax, qword [rax]
 
 	; call it
 	push .main
-	push rbx
+	push rax
 	ret
 
 eqtorax:
@@ -609,10 +608,12 @@ func_sbp:
 	ret
 
 func_native:
-	pop_ps rax
-
 	bt r11, MASK_ALT
 	jc .inline
+	pop_ps rax
 	jmp rax
 .inline:
+	mov r15, .inc
 	jmp rsi
+.inc:	pop rsi
+	ret
