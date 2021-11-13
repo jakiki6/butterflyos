@@ -5,3 +5,4 @@
 %include "core/framebuffer.asm"
 %include "core/rng.asm"
 %include "core/debug.asm"
+%include "core/mm.asm"
