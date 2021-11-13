@@ -34,6 +34,11 @@ arch_inb:
 	push_ps rax
 	ret
 
+arch_lidt:
+	pop_ps rax
+	lidt [rax]
+	ret
+
 rng_one:
 	rdtsc
 	shl rdx, 32

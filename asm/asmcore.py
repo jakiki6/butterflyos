@@ -37,6 +37,8 @@ OPCODES = {
 CONSUMES = {
     "db": -1,
     "dw": -1,
+    "ddb": -1,
+    "dhw": -1,
     "dr": 1,
     "org": 1,
     "%include": -1,
@@ -52,6 +54,10 @@ CONSUMES = {
     "ret": 0,
     "hlt": 0,
     "shr": 0,
+    "lddb": 0,
+    "ldhw": 0,
+    "stdb": 0,
+    "sthw": 0,
     "inline": 0,
     "global": 1,
     "extern": 1
@@ -270,18 +276,22 @@ def process(text):
     preprocess(data)
     clean(data)
 
-    if "DEBUG" in os.environ.keys():
-        for opcode in data:
-            if isinstance(opcode, OpCode):
-                print(repr(opcode.opcode), opcode.args)
-            else:
-                print(opcode.name + ":")
-
     tosplice = []
     labels = {}
     globals, externals = [], []
 
+    if "DUMPRAW" in os.environ.keys():
+        for opcode in data:
+            if isinstance(opcode, OpCode):
+                print(opcode.opcode, *opcode.args)
+            else:
+                print(opcode.name + ":")
+        exit(0)
+
     for opcode in data:
+        if "DEBUG" in os.environ.keys():
+            print(opcode)
+
         if isinstance(opcode, OpCode):
             if len(opcode.args) == 0:
                 try:
@@ -303,14 +313,24 @@ def process(text):
 
             if opcode.opcode == "db":
                 for arg in opcode.args:
-                    num = utils.req_int_big(arg, [len(binary)], tosplice, binary, ws, root_label)
+                    num = utils.req_int_big(arg, [len(binary)], tosplice, binary, 1, root_label)
 
-                    binary += bytearray(pack_num(num))
+                    binary += bytearray(utils.pack_num(num, 1))
             elif opcode.opcode == "dw":
                 for arg in opcode.args:
                     num = utils.req_int_big(arg, [len(binary)], tosplice, binary, ws, root_label)
 
                     binary += bytearray(utils.pack_num(num, ws))
+            elif opcode.opcode == "ddb":
+                for arg in opcode.args:
+                    num = utils.req_int_big(arg, [len(binary)], tosplice, binary, 2, root_label)
+
+                    binary += bytearray(utils.pack_num(num, 2))
+            elif opcode.opcode == "dhw":
+                for arg in opcode.args:
+                    num = utils.req_int_big(arg, [len(binary)], tosplice, binary, 4, root_label)
+
+                    binary += bytearray(utils.pack_num(num, 4))
             elif opcode.opcode == "dr":
                 binary += bytes.fromhex(opcode.args[0].replace("0x", ""))
             elif opcode.opcode == "org":
@@ -373,7 +393,7 @@ def process(text):
 
                 flags = 0
                 if "." in opcode.opcode:
-                    if opcode.opcode.split(".")[0] in (list(OPCODES.keys()) + ["sps", "srs", "lit", "jmp", "jmpc", "call"]):
+                    if opcode.opcode.split(".")[0] in (list(OPCODES.keys()) + ["sps", "srs", "lit", "jmp", "jmpc", "call", "lddb", "ldhw", "stdb", "sthw"]):
                         opcode.opcode, oflags = opcode.opcode.split(".")
 
                         for char in oflags:
@@ -409,6 +429,14 @@ def process(text):
                     binary += bytearray([OPCODES["scall"] | flags])
                 elif opcode.opcode == "shr":
                     binary += bytearray([0x01 | flags, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x80, OPCODES["xor"] | flags, OPCODES["shl"] | flags])
+                elif opcode.opcode == "lddb":
+                    binary += bytearray([OPCODES["ldb"] | flags | FLAGS["a"]])
+                elif opcode.opcode == "ldhw":
+                    binary += bytearray([OPCODES["ldw"] | flags | FLAGS["a"]])
+                elif opcode.opcode == "stdb":
+                    binary += bytearray([OPCODES["stb"] | flags | FLAGS["a"]])
+                elif opcode.opcode == "sthw":
+                    binary += bytearray([OPCODES["stw"] | flags | FLAGS["a"]])
                 elif opcode.opcode == "inline":
                     binary += bytearray([OPCODES["native"] | 0x40])
                 elif opcode.opcode in OPCODES.keys():

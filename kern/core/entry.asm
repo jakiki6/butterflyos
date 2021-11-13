@@ -9,8 +9,9 @@ KernelEntry:
 	; set bp to be equal to the stack
 	0 sbp drop
 
-	call SymSetup
-	call SerialSetup
+	call SymInit
+	call IdtInit
+	call SerialInit
 	call FbInit
 
 	.logo call SerialWriteString

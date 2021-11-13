@@ -1,5 +1,5 @@
-global SymSetup
-SymSetup:
+global SymInit
+SymInit:
 	; setup pointer
 	_EmptyEntry SymPtr stw
 	ret

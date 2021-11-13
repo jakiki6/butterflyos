@@ -7,3 +7,8 @@ global ArchInB
 ArchInB:
 	.bin native ret
 .bin:	dr 0x498b104983c008ec4825ff0000004983e808498900c3
+
+global ArchLIdt
+ArchLIdt:
+	.bin native ret
+.bin:	dr 0x498b004983c0080f0118c3

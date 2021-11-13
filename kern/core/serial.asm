@@ -1,5 +1,5 @@
-global SerialSetup
-SerialSetup:
+global SerialInit
+SerialInit:
 	ret
 
 is_transmit_empty:

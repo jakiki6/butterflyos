@@ -6,3 +6,4 @@
 %include "core/rng.asm"
 %include "core/debug.asm"
 %include "core/mm.asm"
+%include "core/idt.asm"

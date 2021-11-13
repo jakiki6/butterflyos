@@ -564,28 +564,51 @@ func_shift:
 func_ldb:
 	xor rax, rax
 	pop_ps rbx
+
+	bt r11, MASK_ALT
+	jc .db
+
 	mov al, byte [rbx]
-	push_ps rax
+.ret:	push_ps rax
 	ret
+.db:	mov ax, word [rbx]
+	jmp .ret
 
 func_ldw:
+	xor rax, rax
 	pop_ps rbx
+
+	bt r11, MASK_ALT
+        jc .hw
+
 	mov rax, qword [rbx]
-	push_ps rax
+.ret:	push_ps rax
 	ret
+.hw:	mov eax, dword [rbx]
+	jmp .ret
 
 func_stb:
 	pop_ps rbx
 	pop_ps rax
 
+	bt r11, MASK_ALT
+        jc .db
+
 	mov byte [rbx], al
+	ret
+.db:	mov word [rbx], ax
 	ret
 
 func_stw:
 	pop_ps rbx
 	pop_ps rax
 
+	bt r11, MASK_ALT
+        jc .hw
+
 	mov qword [rbx], rax
+	ret
+.hw:	mov dword [rbx], eax
 	ret
 
 func_srel:
