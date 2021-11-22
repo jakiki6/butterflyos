@@ -304,9 +304,12 @@ def process(text):
 
             if opcode.opcode == "db":
                 for arg in opcode.args:
-                    num = utils.req_int_big(arg, [len(binary)], tosplice, binary, 1, root_label)
+                    if arg.startswith('"') and arg.endswith('"') and len(arg) >= 3:
+                        binary += bytearray(arg[1:-1].encode())
+                    else:
+                        num = utils.req_int_big(arg, [len(binary)], tosplice, binary, 1, root_label)
 
-                    binary += bytearray(utils.pack_num(num, 1))
+                        binary += bytearray(utils.pack_num(num, 1))
             elif opcode.opcode == "dw":
                 for arg in opcode.args:
                     num = utils.req_int_big(arg, [len(binary)], tosplice, binary, ws, root_label)

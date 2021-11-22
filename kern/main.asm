@@ -7,3 +7,4 @@
 %include "core/debug.asm"
 %include "core/mm.asm"
 %include "core/idt.asm"
+%include "core/dump.asm"
