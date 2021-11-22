@@ -6,7 +6,7 @@ IdtInit:
 
 	; copy
 	IdtEntriesPtr ldw
-	IdtDesc sthw
+	IdtDesc stw
 
 	; load it
 	IdtDesc call ArchLIdt
@@ -14,7 +14,7 @@ IdtInit:
 	ret
 global IdtDesc
 IdtDesc:
-	dhw 0
+	dw 0
 	ddb 0xffff
 global IdtEntriesPtr
 IdtEntriesPtr:

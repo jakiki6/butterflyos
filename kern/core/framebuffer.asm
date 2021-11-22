@@ -12,22 +12,27 @@ FbInit:
 
 global FbDrawPixel
 FbDrawPixel:
-	; (r, g, b, x, y) -> ()
+	; (r=4, g=3, b=2, x=1, y=0) -> ()
 	0 sbp
 
 	; pos = ((y * bpl + (x * 3)) + fbase
-	0 srel ldw			; y
+	#0 srel ldw		; y
 	FbCfg.bpl ldw mul	; * bpl
-	8 srel ldw 3 mul add		; + (x * 3)
+	#1 srel ldw 3 mul add	; + (x * 3)
 	FbCfg.buf ldw add	; + fbase
 
-	dup 32 srel ldw swap stb 1 add
-	dup 24 srel ldw swap stb 1 add
-	dup 16 srel ldw swap stb drop
+	dup #4 srel ldw swap stb 1 add
+	dup #3 srel ldw swap stb 1 add
+	dup #2 srel ldw swap stb drop
 
-	swap drop swap drop swap drop swap drop swap drop
+	#5 #0 leave ret
 
-	sbp drop ret
+global FbDrawLine
+FbDrawLine:
+	; (r=6, g=5, b=4, x1=3, x2=2, y1=1, y1=0) -> ()
+	0 sbp
+
+	#7 #0 leave ret
 
 global FbCfg
 FbCfg:

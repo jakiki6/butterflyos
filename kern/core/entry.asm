@@ -14,6 +14,7 @@ KernelEntry:
 	call SerialInit
 	call FbInit
 
+	0xff 0xff 0xff 32 32 call FbDrawPixel
 	.logo call SerialWriteString
 
 .hlt:	hlt

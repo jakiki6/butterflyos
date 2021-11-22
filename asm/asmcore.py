@@ -59,6 +59,7 @@ CONSUMES = {
     "stdb": 0,
     "sthw": 0,
     "inline": 0,
+    "leave": 0,
     "global": 1,
     "extern": 1
 }
@@ -295,18 +296,8 @@ def process(text):
         if isinstance(opcode, OpCode):
             if len(opcode.args) == 0:
                 try:
-                    if opcode.opcode.startswith("#"):
-                        num = opcode.opcode[1:]
-                        is_rel = True
-                    else:
-                        num = opcode.opcode
-                        is_rel = False
-
-                    val = utils.req_int_const(num, [], [], bytes(), ws, root_label)
-                    if is_rel:
-                        binary += bytearray([0x01, *utils.pack_num(val, ws), OPCODES["srel"]])
-                    else:
-                        binary += bytearray([0x01, *utils.pack_num(val, ws)])
+                    val = utils.req_int_const(opcode.opcode, [], [], bytes(), ws, root_label)
+                    binary += bytearray([0x01, *utils.pack_num(val, ws)])
                     continue
                 except ValueError:
                     pass
@@ -439,6 +430,8 @@ def process(text):
                     binary += bytearray([OPCODES["stw"] | flags | FLAGS["a"]])
                 elif opcode.opcode == "inline":
                     binary += bytearray([OPCODES["native"] | 0x40])
+                elif opcode.opcode == "leave":
+                    binary += bytearray([OPCODES["sjmp"] | 0x40])
                 elif opcode.opcode in OPCODES.keys():
                     binary += bytearray([OPCODES[opcode.opcode] | flags])
                 else:

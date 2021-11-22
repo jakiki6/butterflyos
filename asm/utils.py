@@ -54,6 +54,17 @@ def req_int_big(string, splices, tosplice, binary, ws, root, const=False):
         val = int.from_bytes(val.encode(), "little")
         return val
 
+    if string.startswith("#"):  # argument
+        try:
+            return int(string[1:]) * ws
+        except:
+            pass
+    if string.startswith("%"):  # local variable
+        try:               
+            return (-int(string[1:]) * ws) % ws
+        except:
+            pass
+
     if len(string) > 2:
         if string[0] == "0":    # prefix like 0x or 0b
             if string[1] in bases.keys():

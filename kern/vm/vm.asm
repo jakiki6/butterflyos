@@ -451,7 +451,23 @@ func_lth:
         ret
 
 func_jmp:
+	bt r11, MASK_ALT
+	jc .leave
+
 	pop_ps rsi
+	ret
+.leave:	pop_ps rbx
+	pop_ps rax
+
+	add r8, rbx
+
+	pop_ps rcx
+
+	add r8, rax
+
+	mov r10, r8
+	add r10, rcx
+
 	ret
 
 func_jmpc:
