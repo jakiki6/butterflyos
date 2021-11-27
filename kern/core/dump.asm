@@ -6,16 +6,16 @@ DumpStack:
 
 .loop:	call DumpWord
 	sth.r 1 sub
-	dup 0 eq jmpc DumpHalt
+	dup 0 eq jmpc DumpEnd
 	sth
 	jmp .loop
 .msg:	db "DUMP -- STACK", 0x0a, 0x00
 
-global DumpHalt
-DumpHalt:
+global DumpEnd
+DumpEnd:
 	.msg call SerialWriteString
-	hlt
-.msg:	db "DUMP -- HALT", 0x0a, 0x00
+	ret
+.msg:	db "DUMP -- END", 0x0a, 0x00
 
 global DumpWord
 DumpWord:

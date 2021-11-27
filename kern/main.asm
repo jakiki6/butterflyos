@@ -4,7 +4,6 @@
 %include "core/serial.asm"
 %include "core/framebuffer.asm"
 %include "core/rng.asm"
-%include "core/debug.asm"
 %include "core/mm.asm"
 %include "core/idt.asm"
 %include "core/dump.asm"

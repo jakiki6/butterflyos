@@ -61,7 +61,7 @@ def req_int_big(string, splices, tosplice, binary, ws, root, const=False):
             pass
     if string.startswith("%"):  # local variable
         try:               
-            return (-int(string[1:]) * ws) % ws
+            return (-(int(string[1:]) + 2) * ws) % (256 ** ws)
         except:
             pass
 

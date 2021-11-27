@@ -32,24 +32,26 @@ FbDrawBlock:
 	; (r=6, g=5, b=4, x1=3, y1=2, x2=1, y2=0) -> ()
 	0 sbp
 
-	#2 srel ldw	; y
-.yl:	#3 srel ldw	; x
-.xl:	#6 ldw
-	#5 ldw
-	#4 ldw
-	%2 ldw
-	%1 ldw
-;	call FbDrawPixel
-	5 call DumpStack
-	1 add
-	dup #1 neq jmpc .xl
-	drop
-	1 add
-	dup #0 neq jmpc .yl
-	drop
+	; locals
+	0 0
 
-	#7 #0 leave ret
+	#2 srel ldw %0 srel stw
+.yl:	#3 srel ldw %1 srel stw
+.xl:	#6 srel ldw
+	#5 srel ldw
+	#4 srel ldw
+	%1 srel ldw
+	%0 srel ldw
 
+	call FbDrawPixel
+
+	%1 srel ldw 1 add %1 srel stw
+	%1 srel ldw #1 srel ldw lth jmpc .xl
+
+	%0 srel ldw 1 add %0 srel stw
+	%0 srel ldw #0 srel ldw lth jmpc .yl
+
+	#7 #2 leave ret
 
 global FbDrawLine
 FbDrawLine:

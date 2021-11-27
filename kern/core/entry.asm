@@ -9,14 +9,15 @@ KernelEntry:
 	; set bp to be equal to the stack
 	0 sbp drop
 
-	call SymInit
-	call IdtInit
-	call SerialInit
+;	call SymInit
+;	call IdtInit
+;	call SerialInit
 	call FbInit
 
-	.logo call SerialWriteString
+;	.logo call SerialWriteString
 
 	0xff 0xff 0xff 20 20 80 80 call FbDrawBlock
+	hlt
 
 .loop:	call RngOneByte
 	call RngOneByte
