@@ -10,7 +10,7 @@ os.img:
 	make -C kern install
 
 clean:
-	rm log.txt os.img 2> /dev/null || true
+	rm log.txt os.img *.log *.bin 2> /dev/null || true
 	make -C loader clean
 	make -C kern clean
 
