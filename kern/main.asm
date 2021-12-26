@@ -7,3 +7,5 @@
 %include "core/mm.asm"
 %include "core/idt.asm"
 %include "core/dump.asm"
+
+%include "intf/buf.asm"
