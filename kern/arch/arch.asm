@@ -50,3 +50,15 @@ rng_one:
 debug_hav:
 	pop_ps rax
 	jmp $
+
+cpuid:
+	pop_ps rax	; leaf
+	pop_ps rcx	; subleaf
+
+	cpuid
+
+	push_ps rax
+	push_ps rbx
+	push_ps rcx
+	push_ps rdx
+	ret

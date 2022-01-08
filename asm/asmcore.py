@@ -246,7 +246,7 @@ def preprocess(data):
         if not isinstance(line, OpCode):
             continue
         if line.opcode == "times":
-            num, _ = utils.req_int_const(line.args[0], [], [], b"", 8, "")
+            num = val = utils.req_int_const(line.args[0], [], [], bytes(), ws, "")
             nline = utils.shift_line(line, 2)
             for i in range(0, num):
                 data.insert(index, nline)
