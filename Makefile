@@ -1,7 +1,7 @@
 all: run
 
 run: os.img
-	qemu-system-x86_64 -hda $< -D log.txt -d int -machine smm=off -no-reboot -serial stdio | tee boot.log
+	qemu-system-x86_64 -hda $< -D log.txt -d int,cpu_reset -machine smm=off -serial stdio -enable-kvm | tee boot.log
 rundb: os.img
 	qemu-system-x86_64 -hda $< -no-reboot -gdb tcp::1337 -S
 

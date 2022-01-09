@@ -9,7 +9,7 @@ IdtInit:
 	IdtDesc stw
 
 	; load it
-	IdtDesc call ArchLIdt
+;	IdtDesc call ArchLIdt
 
 	ret
 global IdtDesc
