@@ -8,5 +8,6 @@
 %include "core/idt.asm"
 %include "core/dump.asm"
 %include "core/hw.asm"
+%include "core/logger.asm"
 
 %include "intf/buf.asm"
