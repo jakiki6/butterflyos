@@ -1,6 +1,8 @@
 	bits 64
 	org 0x10000
 
+%include "vm/header.asm"
+
 _start: call .ip
 .ip:	pop rsi
 	add rsi, vm - .ip

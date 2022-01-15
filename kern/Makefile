@@ -7,7 +7,7 @@ install: ../os.img kernel.bin
 
 kernel.bin: arch/glue.asm main.o
 	nasm -f bin -l vm/vm.lst -o vm.bin vm/vm.asm
-	nasm -f bin -o $@ vm/reloc.asm
+	nasm -f bin -o $@ vm/reloc.asm -DGIT_COMMIT=0x$(git rev-parse HEAD | head -c 16)
 
 %.o: %.asm
 	$(ASM) $< $@
