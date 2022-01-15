@@ -3,7 +3,7 @@
 %include "core/serial.asm"
 %include "core/framebuffer.asm"
 %include "core/rng.asm"
-%include "core/mm.asm"
+%include "core/mem.asm"
 %include "core/idt.asm"
 %include "core/dump.asm"
 %include "core/hw.asm"

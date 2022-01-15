@@ -1,7 +1,7 @@
 global IdtInit
 IdtInit:
 	; 16 * 256 bytes -> 256 entries
-	4096 call MmAlloc
+	4096 call MemAlloc
 	IdtEntriesPtr stw
 
 	; copy
