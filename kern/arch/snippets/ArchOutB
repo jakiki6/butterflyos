@@ -1,0 +1,5 @@
+pop_ps rdx
+pop_ps rax
+
+out dx, al
+ret

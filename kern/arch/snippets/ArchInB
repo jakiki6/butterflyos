@@ -1,0 +1,6 @@
+pop_ps rdx
+
+in al, dx
+and rax, 0xff
+push_ps rax
+ret

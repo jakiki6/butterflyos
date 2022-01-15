@@ -1,0 +1,3 @@
+pop_ps rax
+lidt [rax]
+ret

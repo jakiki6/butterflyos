@@ -1,6 +1,5 @@
 %include "core/entry.asm"
 %include "core/symbols.asm"
-%include "core/arch.asm"
 %include "core/serial.asm"
 %include "core/framebuffer.asm"
 %include "core/rng.asm"
@@ -11,3 +10,5 @@
 %include "core/logger.asm"
 
 %include "intf/buf.asm"
+
+%include "arch/glue.asm"
