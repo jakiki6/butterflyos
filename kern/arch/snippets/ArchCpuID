@@ -1,5 +1,5 @@
-pop_ps rax	; leaf
 pop_ps rcx	; subleaf
+pop_ps rax	; leaf
 
 cpuid
 
